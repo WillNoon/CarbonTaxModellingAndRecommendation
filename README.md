@@ -1,2 +1,2 @@
-# CarbonTaxModellindAndRecommendation
+# Carbon Tax Modelling and Recommendation
 
