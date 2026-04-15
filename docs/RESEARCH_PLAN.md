@@ -36,11 +36,13 @@ This is also a learning project — building skills in causal inference, ML hete
 - [x] Propensity score overlap diagnostics
 - [x] Effective carbon price variable (tax_price × coverage)
 - [ ] Expanded heterogeneity: fossil_pct, log_gdp, trade_openness, education, industry
+- [ ] Trade-weighted spatial lag (captures policy spillovers without full GNN — one extra variable)
 - [ ] Placebo tests + leave-one-out country robustness
 - [ ] Rambachan & Roth parallel trends sensitivity
 - [ ] Oster bounds for omitted variable sensitivity
 - [ ] Fuel subsidies as interaction/moderator (not just control)
 - [ ] Complete "causal effects library" — all moderator × treatment estimates
+- [ ] Model validation with RScorer (econml) — compare CausalForest vs OrthoForest fit
 
 **Key Findings So Far:**
 - Carbon tax ATT: ~-0.18 (significant, robust across specs)
@@ -58,26 +60,33 @@ This is also a learning project — building skills in causal inference, ML hete
 
 ### Model A: Carbon Tax Dose-Response
 - Treatment: `effective_carbon_price` (continuous)
-- Method: `CausalForestDML` with continuous treatment
+- Method: `CausalForestDML` with `treatment_featurizer=PolynomialFeatures(degree=2)` — **critical: CausalForestDML assumes linear treatment by default**, polynomial featurizer captures diminishing returns at higher tax rates
+- Complement with **Gaussian Process dose-response** (GPyTorch) — GPs give smooth dose-response surface with principled uncertainty bands, designed for small N
+- Robustness: **Bayesian Causal Forests (BCF)** via R `bartCause` — better uncertainty intervals than CausalForest, handles irrelevant covariates automatically
 - Heterogeneity variables: governance, GDP, fossil dependence, coverage rate
-- Output: for any country × tax design → predicted emissions effect
+- Output: for any country × tax design → predicted emissions effect with confidence bands
 
-### Model B: ETS Effect
-- Treatment: `has_ets` (binary) — 26 ETS countries in the data
-- Method: Same CausalForestDML framework, separate model
-- Key question: does ETS produce different effects than carbon tax? How does governance moderate it?
-- Tests: does ETS + carbon tax compound (super-additive)?
+### Model B: Multi-Policy Comparison (Carbon Tax vs ETS vs Both)
+- Treatment: categorical — {none, carbon tax only, ETS only, both} — ~20 countries have overlapping policies
+- Method: **ForestDRLearner** — handles categorical multi-treatment, estimates CATE for each treatment vs baseline
+- Key question: does ETS produce different effects than carbon tax? Does having both compound?
+- **DRPolicyForest** (`econml.policy.DRPolicyForest`) — learns optimal policy assignment per country directly. Feeds into Phase 3 recommendations.
 
 ### Model C: Fuel Subsidy Interaction
 - Treatment: `fuel_subsidy_gdp` (continuous — subsidy level as % GDP)
-- Method: DRLearner or CausalForestDML with continuous treatment
+- Method: CausalForestDML with `treatment_featurizer=PolynomialFeatures(degree=2)`
 - Key question: do fuel subsidies offset carbon tax effectiveness? By how much?
 - This directly feeds the recommendation engine: "remove X% of subsidies to amplify tax effect"
 
-### Multi-Task Transfer
+### Cross-Policy Transfer
 - **Core insight:** country features that moderate carbon tax effectiveness (governance, fossil dependence) likely moderate ALL policy effects similarly
-- Learn shared feature→effect mapping across the three models
-- This lets you predict ETS effects for a country that's never had an ETS, using what you learned from carbon tax heterogeneity
+- Compare moderator importance across the three models — if `implementation_capacity` matters for carbon tax AND ETS, that's strong evidence for the recommendation engine
+- Use `RScorer` (econml) for model comparison: which CATE estimator best explains outcome variation?
+
+### Policy Interaction Identification
+- Only ~20 countries have overlapping carbon tax + ETS — limited statistical power
+- Strategy: assume additive effects as baseline, test for interactions using RScorer (does a model with interactions score better?)
+- Phase 3 Bayesian model handles this via shrinkage prior: `interaction ~ Normal(0, sigma)` where sigma is small — interactions only emerge when data supports them
 
 **Data additions:**
 - OECD Effective Carbon Rates (sector-level, 79 countries) — optional enrichment
@@ -85,10 +94,12 @@ This is also a learning project — building skills in causal inference, ML hete
 - IRENA renewable policy database — if expanding to renewable subsidies
 
 **New skills learned:**
-- Continuous treatment dose-response estimation
-- Multi-task causal inference
+- Continuous treatment dose-response estimation (polynomial featurizer + GP)
+- Gaussian Processes for causal inference (GPyTorch)
+- Multi-treatment causal inference (ForestDRLearner)
+- Optimal policy assignment (DRPolicyForest)
 - DoWhy causal graphs
-- DRLearner (doubly robust heterogeneous effects)
+- Model selection for causal models (RScorer, DRTester)
 
 **Deliverables:**
 - [ ] Carbon tax dose-response model (country features + policy design → effect)
@@ -246,7 +257,7 @@ Combined Effect = structural_combination(individual_effects, interactions)
 ## Key Python Packages by Phase
 
 **Phase 1:** statsmodels, econml, pyfixest, sklearn, PySensemakr, diff-diff
-**Phase 2:** econml (CausalForestDML, DRLearner), DoWhy, doubleml
+**Phase 2:** econml (CausalForestDML, ForestDRLearner, DRPolicyForest), DoWhy, GPyTorch, rpy2 + bartCause (for BCF)
 **Phase 3:** PyMC, ArviZ, Streamlit, plotly
 
 ---
