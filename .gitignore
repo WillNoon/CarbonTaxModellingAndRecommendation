@@ -1,0 +1,24 @@
+# AI tooling — never commit
+CLAUDE.md
+GEMINI.md
+AGENTS.md
+.claude/
+.cursor/
+.aider*
+.github/copilot-instructions.md
+docs/superpowers/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.ipynb_checkpoints
+
+# OS
+.DS_Store
+Thumbs.db
