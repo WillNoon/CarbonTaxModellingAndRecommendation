@@ -4,6 +4,19 @@
 
 ---
 
+## 3 June 2026 — Phase 2 capstone: ForestDRLearner multi-policy heterogeneity (Phase 2 COMPLETE)
+
+Built the 4-cell `ForestDRLearner` (0=none, 1=tax-only, 2=ETS-only, 3=both) as `phase2_multipolicy.ipynb` §4. DR-learner chosen over CausalForestDML because the treatment is multi-valued categorical; it returns a CATE per cell vs control. W = 4 validated confounders; X = 7 moderators (median-imputed). The forest has no country FE, so its absolute levels are confounded — anchored to a parametric within-FE `C(policy)` model in the same section.
+
+- **Anchored levels (within-FE, clustered):** tax-only −0.069 (p=0.056), ETS-only −0.141 (p=0.049), both −0.139 (p=0.081). Same "ETS carries it, tax marginal" story as §1, now confirmed under a clean 4-cell categorical spec.
+- **Forest levels are uninformative** (ATEs near 0, very wide CIs) — small treated cells + no FE. Used for shape only, as planned.
+- **Heterogeneity:** CATE sd ≈ 0.13–0.16 per cell. **Implementation capacity is the dominant moderator in every cell** (importance ≈ 0.33), then schooling and industry share. Fossil share ≈ 0 importance in the *both* cell — consistent with fossil-dependence mattering for the *tax* margin specifically (§1), not the combined contrast.
+- **Phase 3 implication:** recommendation engine should treat implementation capacity as the primary effect modifier and keep magnitudes anchored to within-FE parametric estimates, not forest levels.
+
+**Phase 2 is now COMPLETE.** Clean causal questions were answered parametrically; the DR-learner adds the nonlinear heterogeneity map (and the method itself, a learning deliverable). Next: Phase 3 (PyMC hierarchical model + Streamlit), framed uncertainty-first.
+
+---
+
 ## 2 June 2026 — Outcome sensitivity check (null): sharper outcome doesn't rescue the tax
 
 Tested whether the weak carbon-tax signal is a measurement artefact of using economy-wide CO2/capita. Re-ran the de-conflated DiD on fuel-specific, mechanism-aligned outcomes (3-yr forward trend): oil+gas (tax channel), coal (ETS channel).
