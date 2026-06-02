@@ -4,6 +4,18 @@
 
 ---
 
+## 2 June 2026 — Data expansion to 2021 (refreshed 2024 emissions)
+
+Refreshed OWID CO2 data (now reaches 2024) and extended the panel from 2019 to 2021. The 3-yr forward outcome needs emissions at year+3, so 2024 emissions unlock evaluable years through 2021.
+
+- Panel: 3,892 -> **4,218 obs**, 1996-2019 -> **1996-2021**.
+- Evaluable carbon-tax obs: 211 -> **261**; tax countries 23 -> **26** (added South Africa, Luxembourg, Netherlands).
+- Pipeline was not cleanly re-runnable top-to-bottom; fixed 3 latent bugs: pandas-3.0 `groupby().apply()` dropping the grouping column (cell 69), a `gdp.notna()` filter that also dropped post-2021 `co2_per_capita` forward-lookups (cell 18), and a country-map sourced from the wrong frame (cell 77).
+- **Result: the tax-vs-ETS finding is robust to the expansion.** Carbon tax alone -0.056 (p=0.22, still ns); ETS alone -0.129 (p=0.04, still sig); tax dose-response still flat. The weak carbon-tax effect is NOT a power artefact that more data fixes.
+- Note: 2025 emissions not yet published, so 2022 adopters (Uruguay) remain unevaluable. The Phase 1 robustness and effects-library notebooks were built on the 2019 panel and need re-running on the expanded data (headline ATT shifts ~-0.151 -> ~-0.128).
+
+---
+
 ## 2 June 2026 — Phase 2 start: carbon tax vs ETS (de-conflated)
 
 `post_carbon_tax` conflated carbon tax with EU ETS (EU countries treated in 2005 = ETS launch, not their national tax). Re-estimating with clean `has_tax` / `has_ets` (same country+year FE, clustered SEs):
