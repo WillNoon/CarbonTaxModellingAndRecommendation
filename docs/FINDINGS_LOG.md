@@ -4,6 +4,23 @@
 
 ---
 
+## 2 June 2026 — Phase 2 start: carbon tax vs ETS (de-conflated)
+
+`post_carbon_tax` conflated carbon tax with EU ETS (EU countries treated in 2005 = ETS launch, not their national tax). Re-estimating with clean `has_tax` / `has_ets` (same country+year FE, clustered SEs):
+
+| Treatment | Effect | p |
+|-----------|--------|---|
+| Conflated `post_carbon_tax` | -0.151 | 0.004 |
+| Carbon tax alone (`has_tax`) | -0.072 | 0.19 (ns) |
+| ETS alone (`has_ets`) | -0.143 | 0.02 |
+| Both additive: tax | -0.047 | 0.42 (ns) |
+| Both additive: ETS | -0.138 | 0.03 |
+| Interaction tax x ETS | +0.092 | 0.32 (ns) |
+
+**Takeaway:** the Phase 1 headline was largely the EU ETS effect. The standalone national carbon tax effect is weaker (~-0.07) and not significant in this sample. Caveat: tax-only cell is small (94 obs, 15 heterogeneous countries) so power is low; with an interaction term carbon tax alone is significant (-0.093, p=0.02). Notebook: `phase2_multipolicy.ipynb`.
+
+---
+
 ## 2 June 2026 — Phase 1 Complete (summary)
 
 Carbon tax lowers the 3-yr-forward CO2/capita trend by ~0.15 (p=0.004), robust to every standard check. Effectiveness is driven by state capacity (helps) and fossil dependence (hurts). The democratic paradox is retired.
