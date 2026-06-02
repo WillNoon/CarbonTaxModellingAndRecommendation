@@ -1,0 +1,19 @@
+[project]
+name = "carbontaxmodellindandrecommendation"
+version = "0.1.0"
+requires-python = ">=3.13"
+dependencies = [
+    "econml>=0.16.0",
+    "ipykernel>=7.2.0",
+    "jupyter>=1.1.1",
+    "jupyter-client>=8.8.0",
+    "matplotlib>=3.10.8",
+    "nbformat>=5.10.4",
+    "numpy>=2.4.4",
+    "pandas>=3.0.2",
+    "pyfixest>=0.50.1",
+    "scikit-learn>=1.6.1",
+    "scipy>=1.17.1",
+    "seaborn>=0.13.2",
+    "statsmodels>=0.14.6",
+]
