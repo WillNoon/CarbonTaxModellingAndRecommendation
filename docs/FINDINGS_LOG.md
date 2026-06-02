@@ -4,6 +4,21 @@
 
 ---
 
+## 2 June 2026 — Phase 1 Complete (summary)
+
+Carbon tax lowers the 3-yr-forward CO2/capita trend by ~0.15 (p=0.004), robust to every standard check. Effectiveness is driven by state capacity (helps) and fossil dependence (hurts). The democratic paradox is retired.
+
+- **Baseline DiD** (country + year FE, clustered SEs): ATT -0.151, p=0.004.
+- **Event study:** dynamic effect — ~0 at t=0, peak -0.168 at t+3, fades by t+5. Pre-trends jointly insignificant (F=1.87, p=0.12).
+- **Heterogeneity:** implementation capacity -0.118/SD (p=0.07, helps); fossil dependence +0.049/SD (p=0.004, hurts). GDP, trade, schooling insignificant.
+- **Robustness (all pass):** placebo +0.056 p=0.28 (null); leave-one-out -0.16 to -0.12, no sign flips; Goodman-Bacon 2.7% on forbidden comparisons; Rambachan-Roth pre-trends p=0.12, peak breakdown M=0.59 (point) / 0.21 (CI); Oster delta*=2.4, adjusted effect -0.088.
+- **Democratic paradox retired:** old `democratic_legitimacy` was PC2 (= political stability); redefined as PC3 (voice & accountability) it is insignificant (p=0.27) and sign-unstable across DiD / CausalForest / OrthoForest.
+- **Effects library** (`outputs/effects_library.csv`): per-country predicted effect, -0.63 (Luxembourg) to +0.13 (Ukraine).
+- **Fuel subsidy x tax:** +0.077 (p=0.30) — blunts the tax in the right direction but underpowered.
+- **Phase 2 blocker:** ETS coincides perfectly with carbon tax here (no ETS-only variation); fuel-subsidy/coverage data thin. Needs data expansion before multi-policy modelling.
+
+---
+
 ## 2 June 2026 — Robustness Suite Completed + Heterogeneity / Effects Library
 
 ### Robustness checks all pass (phase1_robustness_checks.ipynb, §4–7)
