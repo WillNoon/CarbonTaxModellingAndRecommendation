@@ -4,6 +4,18 @@
 
 ---
 
+## 3 June 2026 — Fuel-subsidy interaction re-run on clean treatments (Phase 2 fully closed)
+
+Closed the last "partial" Phase 2 item. `fuel_subsidy_analysis.ipynb` previously interacted fuel subsidies with the **conflated `post_carbon_tax`** — contradicting the de-conflation that defines Phase 2. Re-ran with clean `has_tax` / `has_ets` and added an ETS symmetry check. Subsidy subsample: 1,781 obs (202 tax, 339 ETS country-years).
+
+- **Tax × subsidy = +0.084 (p=0.15)**, hypothesized direction. At zero subsidy the tax effect is **−0.097 (p=0.065)**, eroding to ~+0.07 at ~2% GDP subsidy, crossing zero near ~1.2% GDP. Suggestive, **not significant** — subsidy-data overlap is thin.
+- **ETS × subsidy = +0.056 (p=0.52)** — null. The blunting is **tax-specific**, mechanistically sensible: consumer fuel subsidies offset the retail price signal a tax raises, whereas the ETS bites upstream.
+- **Caveat:** `has_ets` flips positive (+0.12) in this subsample — selection artefact of the ~26-country subsidy overlap, not a real reversal. Trust the *interaction*, not subsample levels.
+
+**Verdict:** consistent with tax–subsidy antagonism but can't establish it; needs broader time-varying subsidy coverage (Phase 3 data lever), not a different estimator. With this + the ForestDRLearner capstone, **Phase 2 is fully complete** — clean treatment used throughout, no conflated-variable loose ends.
+
+---
+
 ## 3 June 2026 — Phase 2 capstone: ForestDRLearner multi-policy heterogeneity (Phase 2 COMPLETE)
 
 Built the 4-cell `ForestDRLearner` (0=none, 1=tax-only, 2=ETS-only, 3=both) as `phase2_multipolicy.ipynb` §4. DR-learner chosen over CausalForestDML because the treatment is multi-valued categorical; it returns a CATE per cell vs control. W = 4 validated confounders; X = 7 moderators (median-imputed). The forest has no country FE, so its absolute levels are confounded — anchored to a parametric within-FE `C(policy)` model in the same section.
