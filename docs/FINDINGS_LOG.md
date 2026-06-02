@@ -4,6 +4,18 @@
 
 ---
 
+## 2 June 2026 — Outcome sensitivity check (null): sharper outcome doesn't rescue the tax
+
+Tested whether the weak carbon-tax signal is a measurement artefact of using economy-wide CO2/capita. Re-ran the de-conflated DiD on fuel-specific, mechanism-aligned outcomes (3-yr forward trend): oil+gas (tax channel), coal (ETS channel).
+
+- has_tax on oil+gas: +0.010 (p=0.90) — zero effect on the fuels the tax most directly prices.
+- has_tax on coal: -0.131 (p=0.27); on total: -0.045 (p=0.31).
+- has_ets on coal: -0.021 (p=0.71) — no effect on its supposed power-sector channel; on oil+gas -0.290 (p=0.12).
+
+**Conclusion:** sharper/channel-aligned outcomes do NOT strengthen the tax signal; effects don't localize to mechanism-implied fuels. The weak standalone carbon-tax effect is robust across every outcome definition — not a blunt-outcome artefact. (Documented in `phase2_multipolicy.ipynb` §3.) Of the three foundation levers, #2 (sharper outcome) is now exhausted as a null; #3 (effective price) is gated on time-varying coverage data; #1 (subnational units) remains the only untapped lever and is a standalone data project.
+
+---
+
 ## 2 June 2026 — Data expansion to 2021 (refreshed 2024 emissions)
 
 Refreshed OWID CO2 data (now reaches 2024) and extended the panel from 2019 to 2021. The 3-yr forward outcome needs emissions at year+3, so 2024 emissions unlock evaluable years through 2021.
