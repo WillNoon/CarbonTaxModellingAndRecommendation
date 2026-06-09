@@ -4,6 +4,20 @@
 
 ---
 
+## 10 June 2026 — Phase 3 step 9: model validation (PPC, LOO) + robustness (Student-t)
+
+Ran the back half of the Bayesian workflow we'd skipped (convergence ≠ fit), then fixed what it found.
+
+- **PPC:** Normal-likelihood engine reproduces the centre (mean/sd/q95 Bayes-p ≈ 0.5) but **fails the tails** (q05 0.00, min 1.00, max 0.00) — can't reach the extremes, smears the core to compensate.
+- **LOO (PSIS, 0 bad Pareto-k → reliable):** the **fixed effects earn their keep predictively** — Normal+FE beats no-FE by elpd_diff −230 (dse 25, ~9σ; 92% model weight). Independent validation of the causal architecture.
+- **Cause of the fat tails:** tiny-emission / conflict **control** countries (Laos, Yemen, Afghanistan, Sierra Leone — median co2/cap ≈ 0.4 vs 2.6) with huge log-swings off a tiny base. None are tax/ETS countries.
+- **Fix — Student-t likelihood** (estimated `nu ≈ 2`, very heavy tails): decisively better by LOO (**elpd +560, dse 54**); robustly down-weights the noisy controls instead of inflating `sigma`. **Adopted across all 4 channels of the engine.**
+- **Robustness result:** effects **attenuate ~25%** (ETS −0.027, tax-alone −0.019, both ≈ ETS) — a *good* result (no longer outlier-driven); every finding holds and "both ≈ ETS alone" (redundancy) **strengthened**. Cost: mechanism *shares* become directional-only under robustness (heavy-tailed channels), so the engine's deliverable is the **robust totals + CI + P(reduce)**, breakdown qualitative.
+
+**Backend complete:** a validated, outlier-robust causal recommendation engine. Remaining Phase 3: Streamlit dashboard (build-fast); continuous-dose levers remain a deliberate scope choice. **Coverage caveat (the real limit):** identification rests on ~26 tax / 29 ETS countries, almost all high-income EU — so the engine is accurate *for that reference class* and honestly-uncertain (wide CI, EXTRAPOLATED flag) everywhere else, incl. the highest-leverage targets (China, India, Indonesia).
+
+---
+
 ## 10 June 2026 — Phase 3 steps 7–8: counterfactual engine + "tax is redundant, not weak"
 
 Completed the recommendation engine on top of the structural model.
