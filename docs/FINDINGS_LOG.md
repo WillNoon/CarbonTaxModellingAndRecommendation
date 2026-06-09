@@ -4,6 +4,33 @@
 
 ---
 
+## 10 June 2026 — Phase 3 steps 7–8: counterfactual engine + "tax is redundant, not weak"
+
+Completed the recommendation engine on top of the structural model.
+
+- **Step 7 — counterfactual engine.** A recommendation is a within-posterior-draw contrast (policy on vs off), so country baseline `alpha_c` and year effect cancel and the contrast collapses to the posterior of the relevant coefficients — uncertainty propagated end-to-end, no delta method. **Partial pooling makes it honest by construction:** observed-taxed countries get data-informed (tighter) `beta_c`; never-taxed countries revert to the population `Normal(mu,tau)` → automatically wider CI, flagged EXTRAPOLATED. `recommend(country, use_tax, use_ets)` returns total Δ + 90% CI + P(reduce) + Kaya mechanism breakdown.
+- **Step 8 — backlog folded in (heterogeneous `beta_ets` + tax×ETS interaction `delta`).** Identification checked first: ETS well-identified (29 countries, median 14 ETS-yrs) but `tau_ets` small → effects fairly homogeneous (mild country-differentiation); interaction weak-but-estimable (cells: tax-only 83, both 105).
+  - **`delta` = +0.017 (P(>0)=0.96) → sub-additive.** Decomposing: **tax alone ≈ −0.023 (P(reduce)=0.98)**, but **tax on top of ETS ≈ −0.006** (negligible). So the standalone tax DOES cut emissions — the earlier "tax is weak" was the both-cell dragging `mu_tax` to zero. **Reframe: the tax is REDUNDANT, not weak** — carbon-pricing instruments are substitutes, not complements; don't double-instrument expecting double the cut. The engine now drops "both" (−0.043→−0.038) since it no longer sums the two naively.
+  - **Caveat (important):** standalone `mu_tax` leans on the 83-row tax-only cell (non-EU / pre-ETS Nordic) — least robust number; the redundancy and ETS strength are firmer. Channel closure ~80%; activity channel is an association, not a proven mechanism.
+
+**Engine is functionally complete** (binary adopt/not). Remaining: standard Bayesian validation (posterior-predictive checks, LOO-CV — skipped so far), the continuous dose levers (price/coverage) the end-state vision promises ("$30/tonne, 50% coverage" — engine is currently on/off only), and the Streamlit dashboard.
+
+---
+
+## 10 June 2026 — Phase 3 steps 4–6: de-confounding + Kaya mechanism decomposition
+
+Extended the Bayesian engine (`phase3_bayesian_engine.ipynb`) from the causal baseline to a structural decomposition.
+
+- **Step 4 — second treatment (de-confound tax from ETS).** Adding a pooled `has_ets` coefficient halves the tax effect (`mu_tax` −0.121 → **−0.068**, P<0=0.97) and isolates **`mu_ets` = −0.165** (P<0=1.00). Reproduces the Phase-2 de-conflation *inside* the hierarchical model: ETS carries it, tax marginal. `mu_tax` now reads as "tax holding ETS + FE fixed."
+- **Step 5 — anchored priors (honestly).** Did NOT center priors on our own −0.13 (same-data → circular → false precision). Instead tightened scales toward "effects are modest" (external/literature knowledge), centers at 0 so sign is earned. Tightening priors 2.5× moved top-level `mu`/`mu_ets` only in the 3rd decimal (n=4,218 → data dominates = robustness check passed); the treated-country `beta_c` spread shrank (0.044 → 0.041 = the regularization payoff, lands where data is thin). Phase 1/2 thus serves as *validation*, not input.
+- **Step 6 — Kaya mechanism layer.** Switched to a log-change outcome so `dlog(CO2/pop) = dlog(affluence) + dlog(energy-intensity) + dlog(carbon-intensity)` decomposes exactly (identity closes: level max rel err 0.6%, log decomposition max resid 3.5e-3). Re-ran the DiD per channel (pooled treatments, anchored priors, 0 divergences). **Mechanism breakdown (annualized log-pts):**
+  - **ETS −0.0286/yr** splits ≈ **half fuel-switching** (carbon intensity −0.0143, P<0=1.00, the "good" channel) + ≈ **a third lower activity** (affluence −0.0093, P<0=1.00, the *worry* channel — leakage/suppressed activity); efficiency ≈ 0. Over a 3-yr window ≈ −8% ≈ −4% decarbonization + −3% activity.
+  - **Carbon tax −0.0133/yr** is weak and runs through **efficiency** (−0.0121), NOT fuel-switching (carbon intensity −0.0062, uncertain P<0=0.86); its affluence channel is *positive* (+0.0094 — taxing countries grew, masking the effect). Mechanistic echo of Phase 2's null outcome-sensitivity.
+
+**Implications for the engine:** (1) recommend ETS as the primary lever but **flag the activity share** of its headline reduction (not pure decarbonization). (2) Treat the carbon tax as a marginal, efficiency-channel mover. **Caveats:** channel closure is ~85–90% not exact (priors + partial-pooled FE shrink each channel independently — trust shape, not last decimal); the affluence channel is an *association*, not a proven causal mechanism (mediation assumes no mediator–outcome confounding). Deferred: heterogeneous `beta_ets`, tax×ETS interaction (memory `project-phase3-backlog`).
+
+---
+
 ## 9 June 2026 — Phase 3 step 3: Bayesian two-way-FE DiD validates the Phase-1 ATT
 
 Built the causal core of the Phase 3 engine in PyMC (`phase3_bayesian_engine.ipynb`). Started from a no-FE baseline hierarchical model (country partial-pooling on `has_tax`), then added **partial-pooled country intercepts + year effects** — the Bayesian expression of the Phase-1 two-way fixed effects (`C(country) + C(year)`). All non-centered (`β = μ + τz`, etc.) to avoid Neal's funnel; year-effect mean pinned at 0 to anchor the additive level into the country intercepts.
