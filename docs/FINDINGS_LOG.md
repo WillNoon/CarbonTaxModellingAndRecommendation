@@ -4,6 +4,18 @@
 
 ---
 
+## 9 June 2026 — Phase 3 step 3: Bayesian two-way-FE DiD validates the Phase-1 ATT
+
+Built the causal core of the Phase 3 engine in PyMC (`phase3_bayesian_engine.ipynb`). Started from a no-FE baseline hierarchical model (country partial-pooling on `has_tax`), then added **partial-pooled country intercepts + year effects** — the Bayesian expression of the Phase-1 two-way fixed effects (`C(country) + C(year)`). All non-centered (`β = μ + τz`, etc.) to avoid Neal's funnel; year-effect mean pinned at 0 to anchor the additive level into the country intercepts.
+
+- **`mu` (population-mean tax effect): −0.164 (no FE) → −0.121 (+ FE)**, P(μ<0) = 0.999. The ~0.04 shift toward zero is the cross-country baseline + common-time confounding the FE absorbed (`sigma_a` ≈ 0.11, `sigma_g` ≈ 0.055); residual `sigma` dropped 0.348 → 0.327.
+- **Cross-method validation:** −0.121 lands on the Phase-1/2 ATT (≈ −0.13). Frequentist two-way-FE DiD and the Bayesian partial-pooled model — different machines, same identification, same number.
+- Converged: R-hat ≈ 1.00, ESS hundreds-to-thousands, 0 divergences (nutpie backend; PyTensor C backend broken on this Windows/py3.13 box).
+
+**Caveats / next:** (1) `has_tax` only — Phase 2 found **ETS carries the effect**, so `mu` is slightly overstated until `has_ets` is added as a second treatment (then it reads "tax holding ETS fixed"). (2) Priors are still weakly-informative at zero; step "anchor priors" will tighten them to Phase 1/2. (3) `mu` is the mean of heterogeneous `beta_c` (`tau` ≈ 0.086) — that spread drives country-specific recommendations later. Causal identification preserved; still conditional on parallel trends (stress-tested Phase 1).
+
+---
+
 ## 3 June 2026 — Fuel-subsidy interaction re-run on clean treatments (Phase 2 fully closed)
 
 Closed the last "partial" Phase 2 item. `fuel_subsidy_analysis.ipynb` previously interacted fuel subsidies with the **conflated `post_carbon_tax`** — contradicting the de-conflation that defines Phase 2. Re-ran with clean `has_tax` / `has_ets` and added an ETS symmetry check. Subsidy subsample: 1,781 obs (202 tax, 339 ETS country-years).
