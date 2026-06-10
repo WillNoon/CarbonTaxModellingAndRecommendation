@@ -152,3 +152,150 @@ Folded the night's findings into the Streamlit app (`dashboard/app.py`):
 The dashboard's core remains uncertainty-first: confidence tag → CI → point; price is the lever; country drives
 confidence; extrapolation beyond €50 ETS is flagged.
 
+
+## §3b — Sectoral mechanism: the ETS bites hardest where it actually covers (coal/power) (DONE)
+
+Decomposed the dose-response by emission source (3-yr forward dlog, country+year FE, ±country trends):
+
+| outcome | ETS (base / +trend) | tax (base / +trend) |
+|---|---|---|
+| Total CO₂ | −0.0109 / −0.0081 (robust) | −0.0026 / +0.002 (weak) |
+| **Coal CO₂ (power/industry)** | **−0.0238 / −0.0200** (biggest, p softens to 0.17 under trends) | −0.0036 / +0.003 (null) |
+| Gas CO₂ | −0.0125 / −0.0179 (suggestive) | +0.005 (null) |
+| Oil CO₂ (transport) | −0.0107 / −0.0113 (robust) | −0.0008 (null) |
+
+**Reading:** the ETS effect is **~2× larger on coal** than on total — and coal/power is *exactly* the sector the
+EU ETS covers. That magnitude ordering (coal > gas ≈ total ≈ oil) is **coherent mechanism evidence**: the ETS
+works mainly through coal-to-clean switching in electricity. (Coal's statistical significance softens under
+country trends — the coal series is noisier — so this is *suggestive mechanism*, not a second robust headline; the
+robust ETS headlines remain total + oil.) The tax is null in every sector, consistent with §3.
+
+**Why oil also moves under the ETS** (a caveat, not a contradiction): EU ETS doesn't cover road transport pre-2027,
+so the oil signal is likely non-road oil in covered sectors (industry/shipping/aviation/heat) and/or the ETS price
+proxying broader EU decarbonization — don't read it as a causal road-transport effect.
+
+
+---
+
+# PART II — Learning synthesis (read this to *understand* and *recreate*)
+
+## A. Executive summary — the whole night in six lines
+
+1. **SDID / synthetic control cannot identify the EU ETS** — there is no comparable un-priced economy to use as a
+   control (every rich country priced carbon at once in 2005). A gold-standard method *failed informatively*.
+2. **That failure validated our engine:** for this data, identification must come from **within-country price
+   variation** (the ETS price crash/recovery), which our dose-response engine uses — not a control group.
+3. **We expanded the data back to 1965** so the Nordic carbon-tax adopters get a real pre-period, then ran a
+   synthetic control for the *tax*. On total CO₂ it is null; on transport (oil) it *looked* large…
+4. **…but cross-method scrutiny demoted that:** our dose engine on oil CO₂ shows no tax-transport effect either,
+   and the SC oil estimates were insignificant + pre-tax-confounded. **The tax is weak everywhere in our data.**
+5. **The ETS is robust and mechanistically coherent:** it survives every control and bites *hardest on coal*
+   (power/industry — exactly its coverage).
+6. **Bottom line, now battle-tested:** **ETS works (≈ −7 to −10% per €30, robust); the carbon tax is unproven in
+   aggregate data** (Andersson's within-Sweden transport design is the only solid tax evidence, and we can't
+   reproduce it cross-country). The binding constraint is *data* (no controls / no sectoral coverage), not method.
+
+## B. The methods, taught (so you can rebuild them from scratch)
+
+### B1. Synthetic control (Abadie, Diamond, Hainmueller)
+**Idea:** to estimate the effect on one treated unit, build a fake "synthetic" version of it from a weighted blend
+of untreated *donor* units, with weights chosen to match the treated unit's **pre-treatment** path. Post-treatment,
+`effect = actual − synthetic`.
+
+**The optimization (the whole method in one solve):**
+
+    minimize_w  sum_{t < treat} ( y_treated,t  −  sum_j w_j * y_donor_j,t )^2
+    subject to  w_j >= 0,  sum_j w_j = 1
+
+`w >= 0, sum w = 1` keeps the synthetic inside the donors' convex hull (no extrapolation) and gives sparse,
+interpretable weights. Solve with `scipy.optimize.minimize(method='SLSQP')` using a sum-to-one equality
+constraint and `(0,1)` bounds. That is the entire method.
+
+**The two traps we hit (remember these):**
+- *Overfitting:* with many donors and few pre-periods you get a near-perfect pre-fit from an absurd blend
+  (Germany ≈ Qatar + Zimbabwe). **A perfect pre-fit is a red flag.** Fix: restrict the donor pool to comparable
+  units and/or match on covariates, not just the outcome line.
+- *No comparable donors:* if nothing resembles the treated unit (a mature, decarbonizing economy), even a good
+  optimizer gives garbage. **Synthetic control cannot work without real controls.**
+
+### B2. Synthetic DiD (Arkhangelsky, Athey, Hirshberg, Imbens, Wager 2021)
+Extends SC with three upgrades that make it robust: (1) an **intercept shift** so it matches the *trend*, not the
+level; (2) **time weights** `lambda_t` so pre-periods that predict the post-period count more; (3) a **ridge
+penalty** `zeta^2 * ||w||^2` with `zeta = (N_tr * T_post)^(1/4) * sd(diff(controls))`. The estimate is a weighted
+DiD:
+
+    tau = mean_treated(g_i)  −  sum_donors w_i * g_i
+    where  g_i = (post-mean of unit i)  −  sum_t lambda_t * (pre value of unit i)
+
+We coded both weight solves as the same simplex optimization with the intercept *concentrated out* (subtract the
+mean of the residual before squaring). See notebook **Step 14**.
+
+### B3. Inference without a formula: placebo tests
+You cannot write a clean standard error for these, so you **simulate the null**:
+- *In-space placebo (Abadie):* pretend each *donor* was the treated unit, run the whole SC, and record its
+  post/pre RMSPE ratio. The real treated unit is "significant" only if its ratio ranks near the top. p ≈ rank / N.
+- *SDID placebo:* randomly re-assign "treatment" to control units many times, recompute `tau`, and use the spread
+  of those placebo taus as the standard error. We used both (Steps 14–15).
+- **Lesson we learned the hard way:** a placebo "p = 0.000" is meaningless if the placebo pool does not contain the
+  real confound (our EU-vs-developing-world artefact). Inference is only as good as the comparison set.
+
+### B4. The dose-response engine (why it is the right tool here)
+Instead of a control group, it identifies off **within-country price variation**: regress the 3-yr-forward change
+in log CO₂ on the carbon *price* (per $10/tonne) with country + year fixed effects and a Student-t likelihood. The
+ETS price crashing (€30 → €5) then recovering (→ €47) is variation a smooth trend *cannot* mimic — so the ETS slope
+is identified even after we add country-specific trends. The tax price only ever rose smoothly → collinear with a
+trend → not identified. **This is the core methodological moral of the whole project.**
+
+### B5. The sectoral-decomposition trick (cheap, powerful)
+To test a *mechanism*, re-run the same dose regression on **sub-components of the outcome** (coal / oil / gas CO₂
+from OWID). If a policy's effect concentrates in the sector it targets (ETS → coal/power; a fuel tax → oil/
+transport), that is mechanism evidence. It also disciplines suggestive results — it *demoted* our tax-transport
+claim. Do this whenever you have a decomposable outcome.
+
+## C. How everything fits — the unified story
+
+    Is there a comparable CONTROL GROUP?
+      |                                  |
+     YES                                NO   (EU ETS: every rich country priced at once, 2005)
+   synthetic control / SDID        -> control-group methods FAIL (Step 14)
+   works (but we don't have it)    -> must use WITHIN-unit variation instead
+                                          |
+                      Is there usable within-unit treatment VARIATION?
+                       |                                        |
+            ETS price crashed/recovered              tax price only rose smoothly
+            -> dose-response identifies it           -> collinear with a linear trend
+            -> ROBUST effect (−7 to −10% @ €30)      -> NOT identified -> "unproven"
+            -> concentrated in coal/power            -> Andersson finds it in transport,
+               (its actual coverage)                    but we cannot reproduce it cross-country
+
+## D. Where the project stands + recommended next steps
+
+- **Engine:** validated, honest, deploy-ready (dashboard). ETS is the robust deliverable; the tax is flagged unproven.
+- **The real frontier is DATA, not more estimators** (we proved estimators hit a wall):
+  1. **Sub-national / installation-level EU ETS (EUTL) data** — covered vs uncovered installations *within* a
+     country gives the control group that cross-country data lacks. Highest-value unlock.
+  2. **Proper sectoral emissions** (we touched this with coal/oil) — sharpen the mechanism story.
+  3. **Tax:** accept that aggregate cross-country data cannot prove it; cite Andersson for the transport channel.
+- **Ship:** deploy the dashboard (Streamlit Community Cloud) + this doc as the written story → a strong portfolio
+  artefact that demonstrates causal reasoning *and* intellectual honesty.
+
+## E. Reproducibility map (where each piece lives)
+
+| result | code | output |
+|---|---|---|
+| Bayesian dose engine | `notebooks/phase3_bayesian_engine.ipynb` Step 13 | `dashboard/posterior.npz` |
+| LOCO validation | Step 12 (guarded `RUN_LOCO`) | `outputs/loco_validation.csv` |
+| Synthetic control / SDID (ETS, negative result) | Step 14 | inline |
+| Nordic tax synthetic control | Step 15 | `outputs/nordic_tax_oil_sc.png` |
+| Sweden anchor, country-trend, oil/coal cross-checks | this doc §3 / §3b (scratch, deleted) | FINDINGS_LOG |
+| Dashboard | `dashboard/app.py`, `dashboard/build_artifacts.py` | `uv run streamlit run dashboard/app.py` |
+| Full narrative | `docs/FINDINGS_LOG.md`, this file | — |
+
+*All commits are on branch `phase1-robustness-fixes`; each step was committed separately for a clean history.*
+
+## F. If you only re-derive one thing, re-derive this
+The single most transferable idea from tonight: **your identification strategy is dictated by the variation your
+data actually contains, not by which method is fanciest.** We *wanted* synthetic control (prestigious, causal-clean)
+but the data had no control group, so it failed. The humble dose-response worked because the ETS price *moved
+non-monotonically*. Before reaching for a method, ask: *what variation in this dataset is plausibly exogenous, and
+which method exploits exactly that?* Everything tonight is a corollary of that question.
