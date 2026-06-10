@@ -1,0 +1,164 @@
+country,tag,reason,adopter,latest_tax_price,latest_ets_price,log_gdp_pc,impl_capacity_z
+Argentina,DATA-INFORMED,observed adopting carbon pricing,True,5.3,0.0,9.79,-0.16
+Australia,DATA-INFORMED,observed adopting carbon pricing,True,0.0,0.0,10.82,1.69
+Austria,DATA-INFORMED,observed adopting carbon pricing,True,0.0,49.8,10.65,1.56
+Belgium,DATA-INFORMED,observed adopting carbon pricing,True,0.0,49.8,10.62,1.37
+Bulgaria,DATA-INFORMED,observed adopting carbon pricing,True,0.0,49.8,9.88,0.18
+Canada,DATA-INFORMED,observed adopting carbon pricing,True,31.8,31.8,10.7,1.67
+Chile,DATA-INFORMED,observed adopting carbon pricing,True,5.0,0.0,10.02,0.9
+Colombia,DATA-INFORMED,observed adopting carbon pricing,True,4.6,0.0,9.51,-0.18
+Croatia,DATA-INFORMED,observed adopting carbon pricing,True,0.0,49.8,10.11,0.54
+Cyprus,DATA-INFORMED,observed adopting carbon pricing,True,0.0,49.8,10.11,0.77
+Denmark,DATA-INFORMED,observed adopting carbon pricing,True,27.9,49.8,10.8,1.98
+Estonia,DATA-INFORMED,observed adopting carbon pricing,True,2.3,49.8,10.32,1.48
+Finland,DATA-INFORMED,observed adopting carbon pricing,True,90.4,49.8,10.6,2.01
+France,DATA-INFORMED,observed adopting carbon pricing,True,52.4,49.8,10.58,1.25
+Germany,DATA-INFORMED,observed adopting carbon pricing,True,0.0,49.8,10.73,1.61
+Greece,DATA-INFORMED,observed adopting carbon pricing,True,0.0,49.8,10.07,0.51
+Hungary,DATA-INFORMED,observed adopting carbon pricing,True,0.0,49.8,10.24,0.58
+Iceland,DATA-INFORMED,observed adopting carbon pricing,True,35.4,0.0,10.61,1.77
+Ireland,DATA-INFORMED,observed adopting carbon pricing,True,39.7,49.8,10.95,1.6
+Italy,DATA-INFORMED,observed adopting carbon pricing,True,0.0,49.8,10.45,0.66
+Japan,DATA-INFORMED,observed adopting carbon pricing,True,2.4,0.0,10.53,1.51
+Kazakhstan,DATA-INFORMED,observed adopting carbon pricing,True,0.0,1.2,10.12,-0.27
+Latvia,DATA-INFORMED,observed adopting carbon pricing,True,14.1,49.8,10.19,1.04
+Lithuania,DATA-INFORMED,observed adopting carbon pricing,True,0.0,49.8,10.3,1.17
+Luxembourg,DATA-INFORMED,observed adopting carbon pricing,True,40.1,49.8,10.93,1.87
+Malta,DATA-INFORMED,observed adopting carbon pricing,True,0.0,49.8,10.39,0.93
+Mexico,DATA-INFORMED,observed adopting carbon pricing,True,2.9,0.0,9.65,-0.49
+Netherlands,DATA-INFORMED,observed adopting carbon pricing,True,35.2,49.8,10.77,1.81
+New Zealand,DATA-INFORMED,observed adopting carbon pricing,True,0.0,25.8,10.56,1.89
+Norway,DATA-INFORMED,observed adopting carbon pricing,True,80.4,0.0,11.37,1.94
+Poland,DATA-INFORMED,observed adopting carbon pricing,True,0.1,49.8,10.34,0.65
+Portugal,DATA-INFORMED,observed adopting carbon pricing,True,27.8,49.8,10.19,1.11
+Romania,DATA-INFORMED,observed adopting carbon pricing,True,0.0,49.8,10.18,0.37
+Singapore,DATA-INFORMED,observed adopting carbon pricing,True,3.7,0.0,11.29,1.86
+Slovakia,DATA-INFORMED,observed adopting carbon pricing,True,0.0,49.8,10.21,0.76
+Slovenia,DATA-INFORMED,observed adopting carbon pricing,True,20.3,49.8,10.35,1.04
+South Africa,DATA-INFORMED,observed adopting carbon pricing,True,9.2,0.0,9.35,0.07
+Spain,DATA-INFORMED,observed adopting carbon pricing,True,17.6,49.8,10.38,0.95
+Sweden,DATA-INFORMED,observed adopting carbon pricing,True,136.1,49.8,10.74,1.83
+Switzerland,DATA-INFORMED,observed adopting carbon pricing,True,101.5,46.1,11.05,1.91
+Ukraine,DATA-INFORMED,observed adopting carbon pricing,True,0.4,0.0,9.21,-0.49
+United Kingdom,DATA-INFORMED,observed adopting carbon pricing,True,24.8,0.0,10.52,1.44
+Afghanistan,FAR,income below observed range; governance below observed range,False,0.0,0.0,7.26,-1.71
+Albania,NEAR-SUPPORT,low-income edge,False,0.0,0.0,9.41,0.0
+Algeria,FAR,low-income edge; governance below observed range,False,0.0,0.0,9.47,-0.86
+Angola,FAR,income below observed range; governance below observed range,False,0.0,0.0,8.4,-0.81
+Armenia,NEAR-SUPPORT,low-income edge,False,0.0,0.0,9.42,-0.08
+Azerbaijan,FAR,low-income edge; governance below observed range,False,0.0,0.0,9.7,-0.55
+Bahrain,FAR,inside cloud but unobserved,False,0.0,0.0,10.53,0.13
+Bangladesh,FAR,income below observed range; governance below observed range,False,0.0,0.0,8.48,-0.79
+Barbados,FAR,low-income edge,False,0.0,0.0,9.29,0.94
+Belarus,FAR,governance below observed range,False,0.0,0.0,9.9,-0.89
+Benin,FAR,income below observed range; low-governance edge,False,0.0,0.0,7.76,-0.29
+Bolivia,FAR,income below observed range; governance below observed range,False,0.0,0.0,8.76,-0.72
+Bosnia and Herzegovina,NEAR-SUPPORT,low-income edge; low-governance edge,False,0.0,0.0,9.54,-0.45
+Botswana,FAR,low-income edge,False,0.0,0.0,9.64,0.71
+Brazil,NEAR-SUPPORT,low-income edge; low-governance edge,False,0.0,0.0,9.6,-0.2
+Burkina Faso,FAR,income below observed range; governance below observed range,False,0.0,0.0,7.41,-0.54
+Burundi,FAR,income below observed range; governance below observed range,False,0.0,0.0,6.54,-1.34
+Cambodia,FAR,income below observed range; governance below observed range,False,0.0,0.0,8.2,-0.78
+Cameroon,FAR,income below observed range; governance below observed range,False,0.0,0.0,8.0,-1.1
+Cape Verde,FAR,income below observed range,False,0.0,0.0,8.85,0.69
+Central African Republic,FAR,income below observed range; governance below observed range,False,0.0,0.0,6.59,-1.6
+Chad,FAR,income below observed range; governance below observed range,False,0.0,0.0,7.19,-1.4
+China,NEAR-SUPPORT,low-governance edge,False,0.0,0.0,9.82,-0.18
+Comoros,FAR,income below observed range; governance below observed range,False,0.0,0.0,7.6,-1.12
+Congo,FAR,income below observed range; governance below observed range,False,0.0,0.0,8.27,-1.09
+Costa Rica,FAR,low-income edge,False,0.0,0.0,9.63,0.7
+Cote d'Ivoire,FAR,income below observed range; low-governance edge,False,0.0,0.0,8.25,-0.46
+Cuba,FAR,income below observed range; low-governance edge,False,0.0,0.0,8.91,-0.49
+Czechia,NEAR-SUPPORT,inside cloud but unobserved,False,0.0,0.0,10.37,1.18
+Democratic Republic of Congo,FAR,income below observed range; governance below observed range,False,0.0,0.0,6.76,-1.59
+Djibouti,FAR,income below observed range; governance below observed range,False,0.0,0.0,7.98,-0.89
+Dominica,FAR,income below observed range,False,0.0,0.0,9.16,0.71
+Dominican Republic,NEAR-SUPPORT,low-income edge,False,0.0,0.0,9.7,0.07
+Ecuador,FAR,income below observed range; low-governance edge,False,0.0,0.0,9.17,-0.29
+Egypt,FAR,low-income edge; governance below observed range,False,0.0,0.0,9.44,-0.7
+El Salvador,FAR,income below observed range; low-governance edge,False,0.0,0.0,9.13,-0.33
+Equatorial Guinea,FAR,low-income edge; governance below observed range,False,0.0,0.0,9.32,-1.3
+Eswatini,FAR,income below observed range; governance below observed range,False,0.0,0.0,9.0,-0.68
+Ethiopia,FAR,income below observed range; governance below observed range,False,0.0,0.0,7.63,-0.95
+Gabon,FAR,low-income edge; governance below observed range,False,0.0,0.0,9.6,-0.67
+Gambia,FAR,income below observed range; low-governance edge,False,0.0,0.0,7.45,-0.36
+Georgia,NEAR-SUPPORT,low-income edge,False,0.0,0.0,9.74,0.47
+Ghana,FAR,income below observed range,False,0.0,0.0,8.37,0.06
+Guatemala,FAR,income below observed range; governance below observed range,False,0.0,0.0,8.99,-0.69
+Guinea,FAR,income below observed range; governance below observed range,False,0.0,0.0,7.41,-1.0
+Guinea-Bissau,FAR,income below observed range; governance below observed range,False,0.0,0.0,7.33,-1.02
+Haiti,FAR,income below observed range; governance below observed range,False,0.0,0.0,7.36,-1.42
+Honduras,FAR,income below observed range; governance below observed range,False,0.0,0.0,8.44,-0.77
+Hong Kong,NEAR-SUPPORT,inside cloud but unobserved,False,0.0,0.0,10.81,1.22
+India,FAR,income below observed range,False,0.0,0.0,8.84,-0.06
+Indonesia,NEAR-SUPPORT,low-income edge,False,0.0,0.0,9.39,0.01
+Iran,FAR,low-income edge; governance below observed range,False,0.0,0.0,9.76,-1.28
+Iraq,FAR,low-income edge; governance below observed range,False,0.0,0.0,9.34,-1.49
+Israel,NEAR-SUPPORT,inside cloud but unobserved,False,0.0,0.0,10.47,0.79
+Jamaica,FAR,income below observed range,False,0.0,0.0,8.82,0.29
+Jordan,FAR,income below observed range,False,0.0,0.0,9.08,-0.0
+Kenya,FAR,income below observed range; governance below observed range,False,0.0,0.0,8.13,-0.5
+Kuwait,FAR,inside cloud but unobserved,False,0.0,0.0,10.75,0.06
+Kyrgyzstan,FAR,income below observed range; governance below observed range,False,0.0,0.0,8.38,-0.77
+Laos,FAR,income below observed range; governance below observed range,False,0.0,0.0,8.86,-0.68
+Lebanon,FAR,income below observed range; governance below observed range,False,0.0,0.0,9.09,-1.11
+Lesotho,FAR,income below observed range; low-governance edge,False,0.0,0.0,7.64,-0.41
+Liberia,FAR,income below observed range; governance below observed range,False,0.0,0.0,6.64,-0.75
+Libya,FAR,low-income edge; governance below observed range,False,0.0,0.0,9.6,-1.86
+Madagascar,FAR,income below observed range; governance below observed range,False,0.0,0.0,7.13,-0.74
+Malawi,FAR,income below observed range; low-governance edge,False,0.0,0.0,7.18,-0.32
+Malaysia,NEAR-SUPPORT,inside cloud but unobserved,False,0.0,0.0,10.07,0.5
+Mali,FAR,income below observed range; governance below observed range,False,0.0,0.0,7.18,-1.12
+Mauritania,FAR,income below observed range; governance below observed range,False,0.0,0.0,8.04,-0.76
+Mauritius,NEAR-SUPPORT,inside cloud but unobserved,False,0.0,0.0,9.88,0.94
+Moldova,FAR,income below observed range; low-governance edge,False,0.0,0.0,9.03,-0.17
+Mongolia,NEAR-SUPPORT,low-income edge,False,0.0,0.0,9.46,-0.03
+Montenegro,NEAR-SUPPORT,inside cloud but unobserved,False,0.0,0.0,9.9,0.15
+Morocco,FAR,income below observed range; low-governance edge,False,0.0,0.0,9.03,-0.26
+Mozambique,FAR,income below observed range; governance below observed range,False,0.0,0.0,6.86,-0.87
+Myanmar,FAR,income below observed range; governance below observed range,False,0.0,0.0,8.58,-1.48
+Namibia,FAR,income below observed range,False,0.0,0.0,8.92,0.38
+Nepal,FAR,income below observed range; low-governance edge,False,0.0,0.0,8.03,-0.44
+Nicaragua,FAR,income below observed range; governance below observed range,False,0.0,0.0,8.47,-1.02
+Niger,FAR,income below observed range; governance below observed range,False,0.0,0.0,6.81,-0.68
+Nigeria,FAR,income below observed range; governance below observed range,False,0.0,0.0,8.52,-1.05
+North Korea,FAR,income below observed range; governance below observed range,False,0.0,0.0,7.34,-1.67
+North Macedonia,NEAR-SUPPORT,low-income edge,False,0.0,0.0,9.63,0.09
+Oman,FAR,inside cloud but unobserved,False,0.0,0.0,10.54,0.07
+Pakistan,FAR,income below observed range; governance below observed range,False,0.0,0.0,8.58,-0.83
+Palestine,FAR,income below observed range; governance below observed range,False,0.0,0.0,8.4,-0.8
+Panama,NEAR-SUPPORT,inside cloud but unobserved,False,0.0,0.0,9.89,0.13
+Paraguay,FAR,income below observed range; low-governance edge,False,0.0,0.0,9.18,-0.37
+Peru,FAR,low-income edge; low-governance edge,False,0.0,0.0,9.21,-0.2
+Philippines,FAR,income below observed range; low-governance edge,False,0.0,0.0,9.03,-0.31
+Qatar,FAR,income above observed range,False,0.0,0.0,11.78,0.69
+Russia,FAR,governance below observed range,False,0.0,0.0,10.17,-0.69
+Rwanda,FAR,income below observed range,False,0.0,0.0,7.6,0.12
+Saint Lucia,FAR,income below observed range,False,0.0,0.0,9.05,0.63
+Sao Tome and Principe,FAR,income below observed range; low-governance edge,False,0.0,0.0,8.22,-0.17
+Saudi Arabia,FAR,inside cloud but unobserved,False,0.0,0.0,10.89,-0.05
+Senegal,FAR,income below observed range,False,0.0,0.0,7.97,-0.03
+Serbia,NEAR-SUPPORT,low-income edge,False,0.0,0.0,9.72,-0.05
+Seychelles,NEAR-SUPPORT,inside cloud but unobserved,False,0.0,0.0,10.08,0.83
+Sierra Leone,FAR,income below observed range; governance below observed range,False,0.0,0.0,7.24,-0.58
+South Korea,NEAR-SUPPORT,inside cloud but unobserved,False,0.0,0.0,10.6,1.14
+Sri Lanka,NEAR-SUPPORT,low-income edge,False,0.0,0.0,9.42,-0.14
+Syria,FAR,income below observed range; governance below observed range,False,0.0,0.0,7.83,-2.03
+Tajikistan,FAR,income below observed range; governance below observed range,False,0.0,0.0,8.45,-1.12
+Tanzania,FAR,income below observed range; governance below observed range,False,0.0,0.0,8.01,-0.51
+Thailand,NEAR-SUPPORT,low-income edge,False,0.0,0.0,9.63,-0.15
+Togo,FAR,income below observed range; governance below observed range,False,0.0,0.0,7.33,-0.65
+Trinidad and Tobago,NEAR-SUPPORT,inside cloud but unobserved,False,0.0,0.0,10.11,0.17
+Tunisia,FAR,low-income edge; low-governance edge,False,0.0,0.0,9.26,-0.17
+Turkey,FAR,low-governance edge,False,0.0,0.0,10.17,-0.44
+Turkmenistan,FAR,low-income edge; governance below observed range,False,0.0,0.0,9.51,-1.38
+Uganda,FAR,income below observed range; governance below observed range,False,0.0,0.0,7.66,-0.67
+United Arab Emirates,FAR,inside cloud but unobserved,False,0.0,0.0,11.21,0.78
+United States,NEAR-SUPPORT,inside cloud but unobserved,False,0.0,0.0,10.94,1.19
+Uruguay,FAR,inside cloud but unobserved,False,0.0,0.0,9.87,1.18
+Uzbekistan,FAR,low-income edge; governance below observed range,False,0.0,0.0,9.29,-0.68
+Venezuela,FAR,income below observed range; governance below observed range,False,0.0,0.0,8.5,-1.92
+Vietnam,FAR,income below observed range; low-governance edge,False,0.0,0.0,8.96,-0.27
+Yemen,FAR,income below observed range; governance below observed range,False,0.0,0.0,7.39,-2.08
+Zambia,FAR,income below observed range; low-governance edge,False,0.0,0.0,8.12,-0.48
+Zimbabwe,FAR,income below observed range; governance below observed range,False,0.0,0.0,7.37,-1.23
