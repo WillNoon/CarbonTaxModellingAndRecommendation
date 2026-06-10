@@ -317,3 +317,8 @@ Dropped each of the 29 ETS-priced countries one at a time and re-estimated the E
 drives the ETS effect.** This addresses the audit-flagged "ETS is one 2005 cluster" worry for the dose engine
 specifically: adoption clustered in 2005, but the *price variation* that identifies the effect (and the crash/
 recovery) is spread across the panel, so the estimate is not a one-country artefact. Strengthens the headline.
+
+## Reproducibility check (DONE)
+
+Re-executed the **entire** notebook end-to-end in a fresh kernel: **all 39 code cells pass, 0 failures** (~8.5 min,
+many PyMC fits). The committed `notebooks/phase3_bayesian_engine.ipynb` (Steps 1-15) is reproducible from scratch.
