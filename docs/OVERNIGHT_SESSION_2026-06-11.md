@@ -309,3 +309,11 @@ bars hug zero and flip positive under trends. One picture: **ETS robust and coal
 
 **SESSION STATUS:** §1-4 + §3b + Part II complete and committed. Core asks delivered: SDID ported/logged, tax
 data-expansion done, deepening (oil/coal cross-checks), dashboard improved, full learning doc written.
+
+## 3c -- ETS leave-one-country-out (headline robustness) (DONE)
+
+Dropped each of the 29 ETS-priced countries one at a time and re-estimated the ETS dose slope. Full sample
+-0.0109 (p<.001); across all drops the slope stays in [-0.0113, -0.0103], always p<.001. **No single country
+drives the ETS effect.** This addresses the audit-flagged "ETS is one 2005 cluster" worry for the dose engine
+specifically: adoption clustered in 2005, but the *price variation* that identifies the effect (and the crash/
+recovery) is spread across the panel, so the estimate is not a one-country artefact. Strengthens the headline.
