@@ -4,6 +4,53 @@
 
 ---
 
+## 10 June 2026 — LOCO VALIDATION: the covariate "personalization" does NOT survive out-of-sample (Tier-C demoted)
+
+Ran leave-one-**country**-out cross-validation on the Tier-C covariate engine (`β_c = μ + X_c·θ + τ·z_c`, X = implementation-capacity + fossil). For each treated country: refit on the other ~30, predict the held-out country's effect from **its covariates only** (what the engine does for an unseen country), compare to that country's own empirical (per-country OLS) effect. 0 divergences across 31 refits. `outputs/loco_validation.csv`.
+
+- **The covariate extrapolation has ZERO out-of-sample skill.**
+  - TAX (n=18): RMSE-extrapolated **0.0348** vs grand-mean baseline **0.0302** (covariates *worse*); corr(pred,obs) = **0.01**.
+  - ETS (n=29): RMSE-extrapolated **0.0282** vs baseline **0.0272** (tied/worse); corr = **−0.30** (points the wrong way).
+  - **The in-sample Tier-C slope `θ_tax = −0.011` (implementation capacity) does NOT generalize.** Textbook in-sample-coefficient ≠ out-of-sample-prediction. This is exactly what LOCO exists to catch.
+- **The extrapolation intervals are overconfident, and only partly fixably so.** 90% CI coverage = **0.39 (tax) / 0.28 (ETS)**. The engine drops the `τ·z_c` country residual when extrapolating; re-adding it lifts coverage only to 0.44 / 0.48 — because the fitted `τ` is **tiny** (`τ_tax=0.006`, `τ_ets=0.011`) vs the empirical effect scatter `sd≈0.03`. The gap is largely **estimation noise in the single-country benchmarks**, so "overconfident" is partly real, partly a noisy-yardstick artefact — *not* claimed as a pure calibration bug.
+- **The one noise-free fact:** `RMSE_grand-mean ≈ sd(observed effects)` (0.030≈0.032 tax; 0.027≈0.028 ets). The best any model does here is **predict the average**; country-to-country differences are not recoverable from these covariates at this data scale.
+
+**Implications (acted on):**
+1. **Tier-C demoted** — covariates kept as *explored, not predictive*; `recommend()` reports the **grand-mean effect + honest (predictive-distribution) CI** for unobserved countries, not a covariate-personalized point. Observed-adopter countries still get their data-informed partial-pooled `β_c`.
+2. **The honest product scope:** the engine estimates the **average** carbon-pricing effect (ETS ≈ −8%/3yr, tax ≈ 0) with reasonable confidence; it **cannot say which country beats the average**. The reference-class tags remain the right UI guardrail.
+3. **This sharpens why continuous price matters:** the most likely *real, predictable* driver of cross-country effect differences is **the price faced** (€5 vs €47 both coded `has_ets=1`) — not governance/fossil. Continuous price is now the empirical test of whether the LOCO weakness is **fixable (price was the missing predictor)** or a **data-scale ceiling (26 treated units)**. Re-run LOCO on the dose model to decide.
+
+---
+
+## 10 June 2026 — AUDIT FIX TIER B: identification validation on the log outcome
+
+Acted on the audit's CRITICAL-1/2/3. Frequentist diagnostics (pyfixest, country+year FE, clustered by country) on the Phase-3 log outcome `d_T`.
+
+- **Parallel trends HOLDS (CRITICAL-2 resolved in the engine's favour).** Event study on `d_T`: pre-trend leads t−5…t−2 are tax {+0.011,−0.005,−0.007,+0.001} and ETS {+0.011,+0.006,−0.007,−0.007} — **none significant**. The identifying assumption we'd only *asserted* now has direct support on the actual estimand. Tax post-effect builds slowly (~0→−0.024@t+5, mostly insig) → tax weakness is real, not a pre-trend artefact.
+- **ETS is NOT crisis-driven (CRITICAL-1's specific mechanism refuted).** Dropping crisis-contaminated windows (base yr 2006–09): ETS −0.025→−0.021 (still p=0.00); explicit EU×post-2008 control is insignificant (−0.002, p=0.72). The "it's really the 2008 crash" worry is not supported.
+- **⚠️ NEW CAVEAT — the ETS effect is time-localized to the high-price pre-2008 era.** Pre-2008 ETS = −0.030 (p=0.00); **post-2010 ETS = +0.004 (p=0.39) — vanishes.** Mechanistically coherent: the EU ETS carbon price collapsed after 2008 (~€25–30 → ~€5 through the oversupplied 2010s). So **"ETS carries it" → "ETS carried it WHEN THE PRICE BIT."** The engine's pooled `has_ets` ≈ −0.027 is the 2005–08 experience, not a stable ongoing effect; recommending an ETS *today* has no recent-decade support. (Caveat-on-caveat: post-2010 also has weak identifying variation — nearly all EU already treated — so "no detectable effect," not proven zero.) **This is a price story a binary `has_ets` can't capture — strong motivation for the continuous `ets_price_only` work.**
+- **Staggered-TWFE negative weighting (CRITICAL-3): low concern, not formally re-decomposed.** Tax effect is ~null regardless with clean event-study dynamics (no sign flips); ETS is a single 2005 cohort so Goodman-Bacon forbidden-comparisons don't apply. Formal Goodman-Bacon re-run deferred (low value given the above).
+
+Net: the engine's causal basis is **firmer than the audit feared on parallel-trends & crisis-confounding**, but the ETS headline gains an important **high-price-era-only** qualifier. Verified in scratch (event study + 5-spec crisis robustness).
+
+---
+
+## 10 June 2026 — AUDIT (3-agent) corrections & caveats — READ BEFORE CITING PHASE 1–3 HEADLINES
+
+Ran a full adversarial audit (causal methodology, data quality, technique research). Engine *machinery* is sound (outcome construction verified correct & leak-free to 3e-7; no dup rows; scales/standardization clean; treatment-adoption years correct; non-centered param, PPC/LOO, reference-class diagnostic all good practice). But several **headline claims are over-stated and are hereby DEMOTED:**
+
+- **"Carbon pricing works; it's the ETS not the tax" — DEMOTE.** ETS is identified off essentially ONE shock: 26 of 31 ETS countries adopt in 2005 (EU launch) = ~94% of ETS rows; **effective treated clusters ≈ 1**. A common year-effect cannot separate "EU ETS" from EU-specific 2005-era shocks (2008–09 crisis hitting EU industry, 2009 Renewables Directive). `μ_ets`'s tight CI is statistically real but **causally over-precise**. Needs a crisis-robustness fit / gsynth before the claim stands.
+- **Parallel trends NEVER tested on the Phase-3 log-change outcome** — only inherited from Phase-1's *level* outcome. Every Step 6–10 causal claim is conditional on an untested assumption for its actual estimand. (Fix in progress: event study on log outcome.)
+- **Staggered-TWFE diagnostics not re-run** for the Phase-3 design (clean `has_tax` + log outcome + `delta`). Phase-1 Goodman-Bacon (2.7% bad weight) was on the conflated treatment + level outcome.
+- **Kaya "mechanism decomposition" is an ACCOUNTING identity, not causal mediation.** `d_T = d_A+d_I+d_K` is definitional; summing per-bucket regressions is linearity of expectation. "Fuel-switching vs activity" is an interpretive overlay, not identified natural direct/indirect effects (needs no-mediator–outcome-confounding, violated by the business cycle). **Relabel as accounting decomposition** (or add Imai–Keele–Tingley ρ-sensitivity). Also `share = mean(channel)/mean(total)` is a fragile ratio-of-means; compute per-draw.
+- **"Tax is REDUNDANT not weak" — DEMOTE to suggestive/data-limited.** The `delta` interaction is identified from an 83-row / 13-country tax-only cell (1990s Nordic pioneers + near-zero-price LatAm taxes + Ukraine's post-Soviet collapse). Matches Phase-2's own "suggestive, data-limited" language; the redundancy reframe is not robustly supported.
+- **DATA BUG (critical): `*_pct_filled` are binary imputation FLAGS, not energy values** (`_filled = col.isna().astype(int)`; renewable_pct_filled all-zeros). The **2 June "fossil dependence reduces effectiveness (+0.049/SD, p=0.004)" finding is SUSPECT** — likely picking up data-availability, not fossil share. Re-run with real `fossil_pct` (0–100) before citing. Also: `tax_price` is conflated like `post_carbon_tax` (use `tax_price_only`); the 3 energy shares use different denominators, sum to ~107%, nuclear_pct includes hydro → never a simplex. CLAUDE.md templates corrected 10 June.
+- **Prior calibration:** literature (Dolphin–Xiahou 2024, bias-corrected) puts effects at **−4% to −15%**; our −13/−15% anchor is at the aggressive end (consistent with ETS-shock inflation). Recalibrate.
+
+**Triage chosen (A+B+C before dashboard):** A=these honesty/doc fixes (done); B=identification validation (event-study parallel-trends on log outcome + de Chaisemartin/Goodman-Bacon weight diagnostic + ETS crisis-robustness); C=covariate-on-effects hierarchy `β_c ~ Normal(X_c·θ, τ)` + prior recalibration. Research track (deferred): Callaway–Sant'Anna/BJS, Bayesian Causal Forests, gsynth, Manski bounds, continuous dose.
+
+---
+
 ## 10 June 2026 — Phase 3 step 9: model validation (PPC, LOO) + robustness (Student-t)
 
 Ran the back half of the Bayesian workflow we'd skipped (convergence ≠ fit), then fixed what it found.
