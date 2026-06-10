@@ -4,6 +4,38 @@
 
 ---
 
+## 11 June 2026 — DEEPEN (synthetic control / SDID): there is NO clean control group for the EU ETS — and why our price-engine is the right tool
+
+Built classic synthetic control then Synthetic DiD (Arkhangelsky et al. 2021) **from scratch** to try to identify the ETS effect with a gold-standard design (notebook Step 14). It **fails — informatively** — and the failure is the result.
+
+- **Classic SC, naive (all 118 never-treated donors, match outcome only):** near-perfect pre-fit (RMSE 0.0001) achieved by an **absurd** synthetic — Germany ≈ Qatar+Bahrain+Algeria+Zimbabwe. Textbook overfitting: matched the *numbers*, not the *country*. The −8% "effect" is meaningless.
+- **SC, comparable donors + covariate matching:** sensible donors (S.Korea/US/HK) but **poor pre-fit** (pre-treatment gap −7%) → the post "effect" is just trajectory divergence.
+- **SC, match full pre-path within comparable pool:** finally credible pre-fits, but estimates are **wildly unstable across countries that adopted the same policy the same year**: Germany ≈ **0%**, Italy **−40%**, Austria **−30%**. The spread *is* the finding — each "effect" is the country's own post-2005 macro story (Italian recession, German reunification tail), not the ETS.
+- **SDID (block, all 13 EU-2005 ETS-only vs donors):** unit weights collapse to **near-uniform** (top weight ≈ 0.02–0.08) because no donor resembles the treated group → "synthetic EU" ≈ simple average of developing/emerging economies, which *grew* emissions while the EU fell → spurious **−30 to −40%** with a placebo "p=0.000" that is itself an artifact (the placebo pool lacks the mature-economy-decline confound).
+
+**Root cause (the real result):** the treated units are mature, high-income, *already-decarbonizing* economies; a valid counterfactual needs *similar* economies that **didn't** price carbon — and those barely exist (≈ the US is the only one). **No estimator manufactures a control group that doesn't exist.** This rigorously confirms the audit's "single-cluster" concern.
+
+**Unifying insight (why our engine is right):** synthetic control needs a comparable *control group* (absent here → fails); our **continuous-price engine** needs within-country *price variation* (present: the ETS price crash/recovery → works). For this data, **price-variation identification is correct and control-group identification is not — SDID failing is the proof.** Our pooled, trend-robust ETS estimate (−0.0081/$10, ≈ −7%/3yr @ €30) stands as the most defensible number precisely because it never needed a control group.
+
+**Implication:** the binding constraint is **data, not method** — real progress needs *within-country* variation that creates a control group (sub-national/sectoral ETS coverage) or a longer pre-period. The latter is achievable for the **tax** → pivoting to the pre-1990 data expansion (Nordics adopted ~1990–92; OWID emissions reach back to 1750, so a clean pre-period + an untreated-OECD donor pool both exist).
+
+---
+
+## 11 June 2026 — EXTERNAL ANCHOR (Sweden/Andersson) + country-trend robustness: ETS survives, tax collapses
+
+Two paired checks. (1) Anchored the engine to the one country with a gold-standard published causal estimate — Andersson (2019, AEJ:EP), Sweden's carbon tax. (2) The anchor exposed a confound, which a country-specific-trend robustness check then tested generally.
+
+**(1) Sweden anchor — partial pass.** Engine prediction for Sweden @ its prices = **−8.1%/3yr** (CI [−12.3,−4.1]), which sits inside the Dolphin–Xiahou meta range (−4 to −15%) with the right sign → **calibration PASS** (not broken). BUT it **over-attributes**: −8.1%/3yr ≈ −2.7%/yr ≈ *Sweden's entire observed −2.65%/yr CO₂/cap decline* (7.17→3.70 t, −48% over 1996–2021) — implausible, since much of Sweden's drop is grid decarbonization (nuclear/hydro/district heat), not the tax. Sweden's **own** within-country tax→total-CO₂ response is only ~−1%/3yr, far below the pooled engine's −7.5% tax-only. Reconciles with Andersson (his −6.3% is **transport**; our weak **total** response is what you'd expect if the tax bites transport but total CO₂ is dominated by non-tax electricity decarbonization). Scope mismatch (transport vs total) means no exact numeric match was expected.
+
+**(2) Country-specific linear trends (each country its own decarbonization slope), on top of country+year FE, clustered:**
+- **ETS SURVIVES:** `b_ets` −0.0109 → **−0.0081 (p<0.001)**; ~26% attenuation but still strong. €30 ETS: −9.8% → **−7.3%/3yr**. "ETS carries it" holds even under this demanding control.
+- **TAX COLLAPSES:** `b_tax` −0.0026 → **+0.0022 (p=0.25)** — flips sign, insignificant. The (already weak) tax effect on *total* CO₂ is **not separately identifiable from secular decarbonization**: tax adopters (Nordics) were decarbonizing anyway and the rising price rode that trend. This generalizes the Sweden over-attribution.
+- **Caveat (other direction):** country-linear-trends is a *demanding* control that can over-absorb a treatment which itself trends ~linearly (a rising price). So ETS *surviving* = strong robustness evidence; tax *collapsing* = "can't separate from trend" (possibly over-control), not proven-zero — but either way no credible total-CO₂ tax claim.
+
+**Net for the engine:** ETS dose-response is now robust to Student-t + era-split + country-trends → the solid deliverable; honest magnitude **€30 ETS ≈ −7 to −10%/3yr** (range = with/without trend control). The carbon-tax lever should carry a stronger caveat (total-CO₂ effect not robustly identified). Dashboard updated: ETS shown as a range; tax caveat added. Verified in scratch (anchor + 2-spec trend regression on the dose sample, 3729 rows / 163 countries).
+
+---
+
 ## 10 June 2026 — LOCO VALIDATION: the covariate "personalization" does NOT survive out-of-sample (Tier-C demoted)
 
 Ran leave-one-**country**-out cross-validation on the Tier-C covariate engine (`β_c = μ + X_c·θ + τ·z_c`, X = implementation-capacity + fossil). For each treated country: refit on the other ~30, predict the held-out country's effect from **its covariates only** (what the engine does for an unseen country), compare to that country's own empirical (per-country OLS) effect. 0 divergences across 31 refits. `outputs/loco_validation.csv`.
