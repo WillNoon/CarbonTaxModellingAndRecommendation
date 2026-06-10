@@ -4,13 +4,17 @@
 
 ---
 
-## 11 June 2026 — TAX DATA EXPANSION (Nordic synthetic control, pre-1990): the tax bites TRANSPORT, vanishes in total
+## 11 June 2026 — TAX DATA EXPANSION (Nordic synthetic control, pre-1990): tax weak everywhere (SC hinted transport; a dose cross-check demoted it)
+
+> Reading order note: this entry's *initial* SC results hinted at a transport effect; the **CROSS-CHECK bullet below
+> demotes that** — a same-night dose-engine test on oil CO₂ did not reproduce it. Net conclusion: **tax weak on total
+> AND transport in our data.** Kept the original bullets for the learning trail, with the correction inline.
 
 Extended emissions back to 1965 (OWID raw, history to 1750) so the Nordic carbon-tax adopters (Finland 1990, Norway 1991, Sweden 1991, Denmark 1992) finally get a pre-treatment period. Classic synthetic control, pre 1970→tax-year, post tax-year→2004 (pre-ETS, so donors stay untreated → isolates the *tax*); donor pool = 22 high-income non-tax economies; Abadie in-space placebo inference. Notebook Step 15; figure `outputs/nordic_tax_oil_sc.png`.
 
 - **On TOTAL CO₂/cap: ≈ null** (Sweden −5.7%, Finland −2.3%, both p=0.91; Denmark/Norway positive, n.s.). **Independently confirms the engine's "tax unproven on total CO₂"** — now with a proper pre-period and a credible donor pool (synthetic Sweden ≈ France).
 - **On OIL CO₂/cap (transport-fuel proxy): large negative** — Sweden **−20.7%**, Finland **−27.0%**, Denmark **−15.3%**, Nordic-3 aggregate **−15.6%**. Directionally + mechanistically **corroborates Andersson (2019)** (−6.3% transport). Norway (oil producer) is the expected outlier (~0).
-- **Why this reconciles everything:** transport ≈ ¼ of emissions, so a −20% transport cut → ~−5% total, swamped by aggregate noise. The tax is **not weak — total CO₂ is the wrong outcome.** Four independent methods now converge (dose-response engine, country-trend check, Sweden anchor, this SC): *tax bites transport, vanishes in total.*
+- **Initial (over-)reading — SEE CROSS-CHECK, now demoted:** *transport ≈ ¼ of emissions, so a −20% transport cut → ~−5% total — looked like "tax bites transport, vanishes in total."* This is **not supported** once stress-tested (the oil estimates are insignificant + pre-tax-confounded + not reproduced by the dose engine). Retained for the learning trail.
 - **Honest caveats:** NOT statistically significant (Abadie p>0.25 — cross-country oil paths noisy); and Sweden's oil-CO₂ decline **began in the early-1980s nuclear rollout**, pre-tax (visible in the figure), so the raw gap overstates the tax. So: *suggestive, mechanism-coherent, Andersson-consistent — not confirmed.*
 
 

@@ -69,6 +69,15 @@ c1.metric('Predicted CO₂/capita change (3 yr)', f'{pct3.mean():+.1f}%', help='
 c2.metric('90% credible interval', f'[{lo:+.1f}%, {hi:+.1f}%]')
 c3.metric('P(reduces emissions)', f'{p_reduce:.0%}')
 
+st.caption('Central estimate. Under a stricter spec (country-specific decarbonization trends) the **ETS** effect is '
+           '~25% smaller (e.g. €30 → ~−7% rather than −9%) — read the headline as the upper end of a robust range.')
+
+if tax_price > 0:
+    st.caption('⚠️ **Carbon-tax caveat:** the tax\'s effect is **weak across every design we tried** — it fails the '
+               'country-trend control on total CO₂, is null in a transport-CO₂ dose test, and is insignificant in a '
+               'pre-1990 Nordic synthetic control. Andersson (2019) finds a real *transport* effect within Sweden, but '
+               'our cross-country data can\'t reproduce it. **The robust lever is ETS; treat the tax contribution as unproven.**')
+
 if tax_price == 0 and ets_price == 0:
     st.info('Set a non-zero price to see an effect. At $0 the model predicts ~no price effect (the dose passes through the origin).')
 
@@ -110,6 +119,9 @@ with st.expander('How to read this — and what it cannot tell you'):
   the effect by country — it personalizes the **confidence** instead.
 - **The ETS effect is era-stable.** The price-response is statistically the same pre-2008 and post-2010; the mid-2010s "null"
   was the €5 price collapse, not a dead policy. A modern high-price ETS is predicted to bite.
+- **ETS is robust; the tax is not.** The ETS effect survives Student-t, era-splits, *and* country-specific decarbonization
+  trends (attenuating ~25% to ~−7% at €30, still p<0.001). The carbon-**tax** effect on total CO₂ *collapses* under country
+  trends and against Sweden's own data (Andersson's tax effect is transport-only) — so the engine treats the tax as unproven.
 - **Tax vs. ETS are substitutes, not complements** (sub-additive interaction): stacking a tax on top of an ETS adds little.
 - **The curve shape is only pinned where there's data (≲ €50 ETS).** Leave-one-out cross-validation can't distinguish a
   linear dose from a diminishing-returns (log) one — they fit observed prices equally well and only diverge in the
@@ -117,4 +129,27 @@ with st.expander('How to read this — and what it cannot tell you'):
   read the linear estimate as the *optimistic* edge.
 - **Honest limits:** identification rests on ~26 tax / 29 ETS countries, almost all high-income EU. For 🔴 FAR countries
   the number is a weak prior. Effects are 3-year, on CO₂ per capita.
+""")
+
+with st.expander('Evidence base — how hard we tried to break this (and what survived)'):
+    st.markdown("""
+We stress-tested the engine with five independent methods. The story is consistent across all of them:
+
+| method | ETS | carbon tax |
+|---|---|---|
+| Bayesian dose-response (this engine) | robust, −7 to −10% @ €30 | weak, marginal |
+| Country-specific-trend control | **survives** (p<0.001) | **collapses** (flips sign) |
+| Transport (oil) CO₂ dose test | robust | null (p=0.37) |
+| Sweden external anchor (Andersson) | — | over-attributes; tax is transport-only |
+| Pre-1990 Nordic synthetic control | (no control group) | insignificant (Abadie p>0.25) |
+| EU-ETS synthetic control / SDID | *can't* identify — **no comparable control group exists** | — |
+
+**Two methodological lessons baked into this tool:**
+1. **Identification depends on the variation you have.** The ETS *price crashed and recovered* (€30→€5→€47) — variation a
+   trend can't fake — so a dose-response identifies it. The EU all adopted ETS *at once*, so a control-group method (synthetic
+   control / SDID) **cannot** work: there is no comparable un-priced economy to compare against.
+2. **The carbon tax is weak in *aggregate* data everywhere we looked** — but Andersson (2019) shows it works on *transport*
+   within Sweden. Aggregate CO₂ is simply the wrong outcome to see it. We report the tax as **unproven**, not as zero.
+
+*(Full write-up: `docs/OVERNIGHT_SESSION_2026-06-11.md` and `docs/FINDINGS_LOG.md`.)*
 """)

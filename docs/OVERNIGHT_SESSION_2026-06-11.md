@@ -136,3 +136,19 @@ proxy). The result **fails to corroborate it:**
 an independent design before it goes in the headline. Here the dose engine *demoted* a finding I was tempted to
 believe — which is the system working as intended.
 
+
+## §4 — Dashboard improvements (DONE)
+
+Folded the night's findings into the Streamlit app (`dashboard/app.py`):
+- **Tax caveat enriched:** now states the tax is weak across *every* design (country-trend control, transport-CO₂
+  dose test, Nordic synthetic control) — not just total CO₂ — while crediting Andersson's within-Sweden transport
+  result. Frames the tax as **unproven, not zero**.
+- **New "Evidence base" expander:** a 6-row table of every method we stress-tested (dose-response, country-trend,
+  transport dose, Sweden anchor, Nordic SC, EU-ETS SDID) with the ETS-robust / tax-weak verdict, plus the two
+  methodological lessons (identification depends on the variation you have; aggregate CO₂ is the wrong outcome for
+  the tax). Points to the docs.
+- Verified: parses + boots clean (health 200).
+
+The dashboard's core remains uncertainty-first: confidence tag → CI → point; price is the lever; country drives
+confidence; extrapolation beyond €50 ETS is flagged.
+
