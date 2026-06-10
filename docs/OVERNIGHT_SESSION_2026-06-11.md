@@ -299,3 +299,13 @@ data actually contains, not by which method is fanciest.** We *wanted* synthetic
 but the data had no control group, so it failed. The humble dose-response worked because the ETS price *moved
 non-monotonically*. Before reaching for a method, ask: *what variation in this dataset is plausibly exogenous, and
 which method exploits exactly that?* Everything tonight is a corollary of that question.
+
+## Summary figure
+
+`outputs/sectoral_dose_effects.png` — carbon-pricing dose-response by sector and spec. Left (ETS): all
+negative, **coal/power largest (~-2.4 per $10)**, robust under country-trends (red) on total/oil. Right (tax):
+bars hug zero and flip positive under trends. One picture: **ETS robust and coal-concentrated; tax weak everywhere.**
+(Companion: `outputs/nordic_tax_oil_sc.png` — the Nordic tax synthetic control.)
+
+**SESSION STATUS:** §1-4 + §3b + Part II complete and committed. Core asks delivered: SDID ported/logged, tax
+data-expansion done, deepening (oil/coal cross-checks), dashboard improved, full learning doc written.
