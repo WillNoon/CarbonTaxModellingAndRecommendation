@@ -107,3 +107,32 @@ Sweden≈France, Finland≈US) and delivered a **convergent, honest answer the 1
 tax's effect is real-looking and transport-concentrated, invisible in total CO₂ — and our dose-response engine,
 the country-trend check, the Sweden anchor, AND this independent synthetic control now all tell the same story.
 
+
+## §3 — Cross-method scrutiny: the dose engine disciplines the SC's "tax bites transport" claim (DONE)
+
+§2's synthetic control suggested the Nordic tax cut *oil/transport* CO₂ (−15 to −27%). Before believing it, I
+tested the same hypothesis with our **own dose-response engine, re-run on oil CO₂** (1996+ panel, merged transport
+proxy). The result **fails to corroborate it:**
+
+| outcome | TAX (Ptax) base / +trends | ETS (Pets) base / +trends |
+|---|---|---|
+| Total CO₂ | −0.0026 (p=.01) / +0.002 (n.s.) | −0.0109 / −0.0081  (robust) |
+| **Oil CO₂ (transport)** | **−0.0008 (p=.37) / +0.001 (n.s.)** | −0.0107 / −0.0113  (robust) |
+
+**Reading it honestly:**
+- In 1996+, the **tax has no significant effect on oil/transport CO₂** either — *weaker* than on total. So our
+  data does **not** reproduce a tax-transport effect with a clean within-period design.
+- The §2 SC oil estimates were large but **never significant** (Abadie p>0.25) and **partly pre-tax** (Sweden's
+  oil decline began with the early-1980s nuclear rollout). Under cross-method scrutiny they don't hold up.
+- **Corrected conclusion (simpler + more honest):** the carbon **tax effect is weak / unidentified across the
+  board** in our data — total *and* transport. **Andersson's within-Sweden transport design remains the only
+  robust evidence for a transport effect; our cross-country data cannot reproduce it at significance.** The
+  reproducible result across *every* method we ran is: **ETS effect real and robust; tax effect weak.**
+- Bonus: the **ETS shows a robust effect on oil CO₂ too** — but note EU ETS doesn't cover road transport until
+  ETS2 (2027), so this likely reflects oil used in ETS-covered sectors (industry/shipping/aviation/heat) and/or
+  the ETS price proxying for broader EU decarbonization. *Don't over-interpret it as a causal road-transport effect.*
+
+**Methodological lesson (worth keeping):** a suggestive result from one design (SC) should be stress-tested with
+an independent design before it goes in the headline. Here the dose engine *demoted* a finding I was tempted to
+believe — which is the system working as intended.
+

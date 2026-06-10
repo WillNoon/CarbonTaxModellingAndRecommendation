@@ -13,6 +13,9 @@ Extended emissions back to 1965 (OWID raw, history to 1750) so the Nordic carbon
 - **Why this reconciles everything:** transport ≈ ¼ of emissions, so a −20% transport cut → ~−5% total, swamped by aggregate noise. The tax is **not weak — total CO₂ is the wrong outcome.** Four independent methods now converge (dose-response engine, country-trend check, Sweden anchor, this SC): *tax bites transport, vanishes in total.*
 - **Honest caveats:** NOT statistically significant (Abadie p>0.25 — cross-country oil paths noisy); and Sweden's oil-CO₂ decline **began in the early-1980s nuclear rollout**, pre-tax (visible in the figure), so the raw gap overstates the tax. So: *suggestive, mechanism-coherent, Andersson-consistent — not confirmed.*
 
+
+- **CROSS-CHECK (added same night):** re-running our *dose engine* on oil CO₂ (1996+) shows the **tax is NOT significant on transport either** (Ptax −0.0008, p=0.37), so the SC's large oil estimates do **not** survive an independent design. Corrected conclusion: **tax effect weak everywhere in our data**; Andersson's within-Sweden transport design is the only robust transport evidence. ETS robust on oil too (caveat: ETS doesn't cover road transport pre-2027).
+
 **Net:** the expansion succeeded as a method and delivered the convergent, honest answer the 1996+ data could not. The remaining ceiling is statistical power / sectoral data, not design.
 
 ---
