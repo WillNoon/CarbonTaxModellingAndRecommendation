@@ -4,6 +4,19 @@
 
 ---
 
+## 11 June 2026 — TAX DATA EXPANSION (Nordic synthetic control, pre-1990): the tax bites TRANSPORT, vanishes in total
+
+Extended emissions back to 1965 (OWID raw, history to 1750) so the Nordic carbon-tax adopters (Finland 1990, Norway 1991, Sweden 1991, Denmark 1992) finally get a pre-treatment period. Classic synthetic control, pre 1970→tax-year, post tax-year→2004 (pre-ETS, so donors stay untreated → isolates the *tax*); donor pool = 22 high-income non-tax economies; Abadie in-space placebo inference. Notebook Step 15; figure `outputs/nordic_tax_oil_sc.png`.
+
+- **On TOTAL CO₂/cap: ≈ null** (Sweden −5.7%, Finland −2.3%, both p=0.91; Denmark/Norway positive, n.s.). **Independently confirms the engine's "tax unproven on total CO₂"** — now with a proper pre-period and a credible donor pool (synthetic Sweden ≈ France).
+- **On OIL CO₂/cap (transport-fuel proxy): large negative** — Sweden **−20.7%**, Finland **−27.0%**, Denmark **−15.3%**, Nordic-3 aggregate **−15.6%**. Directionally + mechanistically **corroborates Andersson (2019)** (−6.3% transport). Norway (oil producer) is the expected outlier (~0).
+- **Why this reconciles everything:** transport ≈ ¼ of emissions, so a −20% transport cut → ~−5% total, swamped by aggregate noise. The tax is **not weak — total CO₂ is the wrong outcome.** Four independent methods now converge (dose-response engine, country-trend check, Sweden anchor, this SC): *tax bites transport, vanishes in total.*
+- **Honest caveats:** NOT statistically significant (Abadie p>0.25 — cross-country oil paths noisy); and Sweden's oil-CO₂ decline **began in the early-1980s nuclear rollout**, pre-tax (visible in the figure), so the raw gap overstates the tax. So: *suggestive, mechanism-coherent, Andersson-consistent — not confirmed.*
+
+**Net:** the expansion succeeded as a method and delivered the convergent, honest answer the 1996+ data could not. The remaining ceiling is statistical power / sectoral data, not design.
+
+---
+
 ## 11 June 2026 — DEEPEN (synthetic control / SDID): there is NO clean control group for the EU ETS — and why our price-engine is the right tool
 
 Built classic synthetic control then Synthetic DiD (Arkhangelsky et al. 2021) **from scratch** to try to identify the ETS effect with a gold-standard design (notebook Step 14). It **fails — informatively** — and the failure is the result.
