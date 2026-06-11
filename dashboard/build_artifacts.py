@@ -9,6 +9,7 @@ Run:  uv run python dashboard/build_artifacts.py
 import os
 os.environ['PYTENSOR_FLAGS'] = 'cxx='
 import numpy as np, pandas as pd, pymc as pm
+import statsmodels.formula.api as smf
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, 'dashboard')
@@ -36,9 +37,74 @@ with pm.Model():
 
 div = int(idata.sample_stats['diverging'].sum())
 po = idata.posterior
+
+# Extract raw posterior draws before widening
+raw_b_tax = po['b_tax'].values.ravel()
+raw_b_ets = po['b_ets'].values.ravel()
+raw_b_int = po['b_int'].values.ravel()
+
+iid_sds = {
+    'b_tax': float(raw_b_tax.std()),
+    'b_ets': float(raw_b_ets.std()),
+    'b_int': float(raw_b_int.std()),
+}
+print(f"\nRaw posterior (iid Student-t assumption):")
+print(f"  b_tax: mean={raw_b_tax.mean():.6f}, sd={iid_sds['b_tax']:.6f}")
+print(f"  b_ets: mean={raw_b_ets.mean():.6f}, sd={iid_sds['b_ets']:.6f}")
+print(f"  b_int: mean={raw_b_int.mean():.6f}, sd={iid_sds['b_int']:.6f}")
+
+# ---- AUDIT FIX H-3: widen posterior to account for MA(2) serial correlation ----
+#
+# WHY: The 3-year overlapping outcome windows (d_T = log-diff over 3 yr) induce MA(2)
+# autocorrelation in within-country residuals (measured lag1≈0.56, lag2≈0.20).  The PyMC
+# model assumes iid Student-t errors, so its posterior variance is ~30-35% too small (the
+# audit measured sd(b_ets)=0.0013 Bayesian vs 0.0019 cluster-robust OLS).
+#
+# CHEAP HONEST FIX (AUDIT 2026-06-11 §H-3):
+#   1. Fit the identical parametric spec (Ptax + Pets + Ptax*Pets + country FE + year FE)
+#      via OLS with cluster-robust SEs (clustered by country, the right unit of replication).
+#   2. For each slope s ∈ {b_tax, b_ets, b_int}: ratio = clustered_SE(s) / posterior_sd(s).
+#      If ratio > 1 the posterior is too tight; rescale draws around their posterior mean
+#      by the ratio so the posterior spread matches the sampling uncertainty.
+#   3. Keep keys b_tax, b_ets, b_int (dashboard depends on exact names).
+#
+# NOTE: We only widen — if the Bayesian posterior is already wider (ratio < 1) we leave it
+# alone (conservative direction).  The posterior mean is unchanged; only the spread grows.
+
+ols_spec = "d_T ~ Ptax + Pets + Ptax:Pets + C(country) + C(year)"
+ols_res = smf.ols(ols_spec, data=md).fit(
+    cov_type='cluster', cov_kwds={'groups': md['country']}
+)
+clustered_ses = {
+    'b_tax': float(ols_res.bse['Ptax']),
+    'b_ets': float(ols_res.bse['Pets']),
+    'b_int': float(ols_res.bse['Ptax:Pets']),
+}
+
+print(f"\nCluster-robust OLS SEs (clustered by country):")
+for k, v in clustered_ses.items():
+    print(f"  {k}: SE={v:.6f}")
+
+def widen(draws, clustered_se, iid_sd):
+    """Rescale posterior draws around their mean by max(1, clustered_SE/iid_sd)."""
+    ratio = clustered_se / iid_sd
+    if ratio <= 1.0:
+        return draws  # posterior already wide enough
+    mean = draws.mean()
+    return mean + (draws - mean) * ratio
+
+b_tax_w = widen(raw_b_tax, clustered_ses['b_tax'], iid_sds['b_tax'])
+b_ets_w = widen(raw_b_ets, clustered_ses['b_ets'], iid_sds['b_ets'])
+b_int_w = widen(raw_b_int, clustered_ses['b_int'], iid_sds['b_int'])
+
+print(f"\nWidened posterior (after H-3 cluster-robust scaling):")
+print(f"  b_tax: mean={b_tax_w.mean():.6f}, sd={b_tax_w.std():.6f}  (ratio={clustered_ses['b_tax']/iid_sds['b_tax']:.3f})")
+print(f"  b_ets: mean={b_ets_w.mean():.6f}, sd={b_ets_w.std():.6f}  (ratio={clustered_ses['b_ets']/iid_sds['b_ets']:.3f})")
+print(f"  b_int: mean={b_int_w.mean():.6f}, sd={b_int_w.std():.6f}  (ratio={clustered_ses['b_int']/iid_sds['b_int']:.3f})")
+
 np.savez(os.path.join(OUT, 'posterior.npz'),
-         b_tax=po['b_tax'].values.ravel(), b_ets=po['b_ets'].values.ravel(), b_int=po['b_int'].values.ravel())
-print(f"saved posterior.npz  (divergences={div}, draws={po['b_ets'].size})")
+         b_tax=b_tax_w, b_ets=b_ets_w, b_int=b_int_w)
+print(f"\nsaved posterior.npz  (divergences={div}, draws={po['b_ets'].size})")
 
 # ---- per-country confidence (reference class, Step-10 logic) ----
 df['log_gdp_pc'] = np.log(df['gdp'] / df['population'])

@@ -9,6 +9,7 @@ Chile,DATA-INFORMED,observed adopting carbon pricing,True,5.0,0.0,10.02,0.9
 Colombia,DATA-INFORMED,observed adopting carbon pricing,True,4.6,0.0,9.51,-0.18
 Croatia,DATA-INFORMED,observed adopting carbon pricing,True,0.0,49.8,10.11,0.54
 Cyprus,DATA-INFORMED,observed adopting carbon pricing,True,0.0,49.8,10.11,0.77
+Czechia,DATA-INFORMED,observed adopting carbon pricing,True,0.0,49.8,10.37,1.18
 Denmark,DATA-INFORMED,observed adopting carbon pricing,True,27.9,49.8,10.8,1.98
 Estonia,DATA-INFORMED,observed adopting carbon pricing,True,2.3,49.8,10.32,1.48
 Finland,DATA-INFORMED,observed adopting carbon pricing,True,90.4,49.8,10.6,2.01
@@ -16,7 +17,7 @@ France,DATA-INFORMED,observed adopting carbon pricing,True,52.4,49.8,10.58,1.25
 Germany,DATA-INFORMED,observed adopting carbon pricing,True,0.0,49.8,10.73,1.61
 Greece,DATA-INFORMED,observed adopting carbon pricing,True,0.0,49.8,10.07,0.51
 Hungary,DATA-INFORMED,observed adopting carbon pricing,True,0.0,49.8,10.24,0.58
-Iceland,DATA-INFORMED,observed adopting carbon pricing,True,35.4,0.0,10.61,1.77
+Iceland,DATA-INFORMED,observed adopting carbon pricing,True,35.4,49.8,10.61,1.77
 Ireland,DATA-INFORMED,observed adopting carbon pricing,True,39.7,49.8,10.95,1.6
 Italy,DATA-INFORMED,observed adopting carbon pricing,True,0.0,49.8,10.45,0.66
 Japan,DATA-INFORMED,observed adopting carbon pricing,True,2.4,0.0,10.53,1.51
@@ -28,7 +29,7 @@ Malta,DATA-INFORMED,observed adopting carbon pricing,True,0.0,49.8,10.39,0.93
 Mexico,DATA-INFORMED,observed adopting carbon pricing,True,2.9,0.0,9.65,-0.49
 Netherlands,DATA-INFORMED,observed adopting carbon pricing,True,35.2,49.8,10.77,1.81
 New Zealand,DATA-INFORMED,observed adopting carbon pricing,True,0.0,25.8,10.56,1.89
-Norway,DATA-INFORMED,observed adopting carbon pricing,True,80.4,0.0,11.37,1.94
+Norway,DATA-INFORMED,observed adopting carbon pricing,True,80.4,49.8,11.37,1.94
 Poland,DATA-INFORMED,observed adopting carbon pricing,True,0.1,49.8,10.34,0.65
 Portugal,DATA-INFORMED,observed adopting carbon pricing,True,27.8,49.8,10.19,1.11
 Romania,DATA-INFORMED,observed adopting carbon pricing,True,0.0,49.8,10.18,0.37
@@ -36,11 +37,12 @@ Singapore,DATA-INFORMED,observed adopting carbon pricing,True,3.7,0.0,11.29,1.86
 Slovakia,DATA-INFORMED,observed adopting carbon pricing,True,0.0,49.8,10.21,0.76
 Slovenia,DATA-INFORMED,observed adopting carbon pricing,True,20.3,49.8,10.35,1.04
 South Africa,DATA-INFORMED,observed adopting carbon pricing,True,9.2,0.0,9.35,0.07
+South Korea,DATA-INFORMED,observed adopting carbon pricing,True,0.0,15.9,10.6,1.14
 Spain,DATA-INFORMED,observed adopting carbon pricing,True,17.6,49.8,10.38,0.95
 Sweden,DATA-INFORMED,observed adopting carbon pricing,True,136.1,49.8,10.74,1.83
 Switzerland,DATA-INFORMED,observed adopting carbon pricing,True,101.5,46.1,11.05,1.91
 Ukraine,DATA-INFORMED,observed adopting carbon pricing,True,0.4,0.0,9.21,-0.49
-United Kingdom,DATA-INFORMED,observed adopting carbon pricing,True,24.8,0.0,10.52,1.44
+United Kingdom,DATA-INFORMED,observed adopting carbon pricing,True,24.8,49.8,10.52,1.44
 Afghanistan,FAR,income below observed range; governance below observed range,False,0.0,0.0,7.26,-1.71
 Albania,NEAR-SUPPORT,low-income edge,False,0.0,0.0,9.41,0.0
 Algeria,FAR,low-income edge; governance below observed range,False,0.0,0.0,9.47,-0.86
@@ -69,7 +71,6 @@ Congo,FAR,income below observed range; governance below observed range,False,0.0
 Costa Rica,FAR,low-income edge,False,0.0,0.0,9.63,0.7
 Cote d'Ivoire,FAR,income below observed range; low-governance edge,False,0.0,0.0,8.25,-0.46
 Cuba,FAR,income below observed range; low-governance edge,False,0.0,0.0,8.91,-0.49
-Czechia,NEAR-SUPPORT,inside cloud but unobserved,False,0.0,0.0,10.37,1.18
 Democratic Republic of Congo,FAR,income below observed range; governance below observed range,False,0.0,0.0,6.76,-1.59
 Djibouti,FAR,income below observed range; governance below observed range,False,0.0,0.0,7.98,-0.89
 Dominica,FAR,income below observed range,False,0.0,0.0,9.16,0.71
@@ -91,7 +92,7 @@ Haiti,FAR,income below observed range; governance below observed range,False,0.0
 Honduras,FAR,income below observed range; governance below observed range,False,0.0,0.0,8.44,-0.77
 Hong Kong,NEAR-SUPPORT,inside cloud but unobserved,False,0.0,0.0,10.81,1.22
 India,FAR,income below observed range,False,0.0,0.0,8.84,-0.06
-Indonesia,NEAR-SUPPORT,low-income edge,False,0.0,0.0,9.39,0.01
+Indonesia,FAR,low-income edge,False,0.0,0.0,9.39,0.01
 Iran,FAR,low-income edge; governance below observed range,False,0.0,0.0,9.76,-1.28
 Iraq,FAR,low-income edge; governance below observed range,False,0.0,0.0,9.34,-1.49
 Israel,NEAR-SUPPORT,inside cloud but unobserved,False,0.0,0.0,10.47,0.79
@@ -141,7 +142,6 @@ Senegal,FAR,income below observed range,False,0.0,0.0,7.97,-0.03
 Serbia,NEAR-SUPPORT,low-income edge,False,0.0,0.0,9.72,-0.05
 Seychelles,NEAR-SUPPORT,inside cloud but unobserved,False,0.0,0.0,10.08,0.83
 Sierra Leone,FAR,income below observed range; governance below observed range,False,0.0,0.0,7.24,-0.58
-South Korea,NEAR-SUPPORT,inside cloud but unobserved,False,0.0,0.0,10.6,1.14
 Sri Lanka,NEAR-SUPPORT,low-income edge,False,0.0,0.0,9.42,-0.14
 Syria,FAR,income below observed range; governance below observed range,False,0.0,0.0,7.83,-2.03
 Tajikistan,FAR,income below observed range; governance below observed range,False,0.0,0.0,8.45,-1.12
