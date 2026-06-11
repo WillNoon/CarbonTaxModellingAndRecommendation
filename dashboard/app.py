@@ -111,6 +111,9 @@ def load_artifacts():
     return b_tax, b_ets, b_int, sup
 
 
+ISO3_TO_COUNTRY = {v: k for k, v in ISO3.items()}
+
+
 def status_of(row):
     if row.tag == 'DATA-INFORMED':
         return 'Adopter — data-informed'
@@ -119,10 +122,26 @@ def status_of(row):
     return 'Far from support'
 
 
+def picked_country(event):
+    """Country clicked on the map, or None. Reads customdata, falls back to ISO."""
+    try:
+        pts = event['selection']['points']
+    except (KeyError, TypeError):
+        return None
+    if not pts:
+        return None
+    p = pts[0]
+    cd = p.get('customdata')
+    if cd:
+        return cd[0]
+    return ISO3_TO_COUNTRY.get(p.get('location'))
+
+
 @st.cache_data
-def build_choropleth():
-    """World map, cached so it never rebuilds on slider moves. Coloured by evidence
-    status only — LOCO rules out per-country effect sizes."""
+def build_choropleth(selected):
+    """World map, cached per selected country (rebuilds on selection, not on slider
+    moves). Coloured by evidence status only — LOCO rules out per-country effect sizes.
+    The selected country is drawn on top with a gold outline."""
     _, _, _, sup = load_artifacts()
     d = sup.copy()
     d['iso'] = d['country'].map(ISO3)
@@ -145,10 +164,25 @@ def build_choropleth():
             colorscale=[[0, STATUS_COLOR[status]], [1, STATUS_COLOR[status]]],
             showscale=False,
             marker_line_color='#0a1628', marker_line_width=0.4,
+            selected=dict(marker=dict(opacity=1.0)),     # don't let a click fade the rest
+            unselected=dict(marker=dict(opacity=1.0)),
             hovertemplate=('<b>%{customdata[0]}</b><br>' + status +
                            '<br>tax $%{customdata[1]:.0f}/t · ETS $%{customdata[2]:.0f}/t'
                            '<extra></extra>'),
         ))
+
+    sel_iso = ISO3.get(selected)
+    if sel_iso:
+        fig.add_trace(go.Choropleth(
+            locations=[sel_iso], locationmode='ISO-3', z=[1],
+            customdata=[[selected]], name='selected', showlegend=False,
+            colorscale=[[0, '#e6edf6'], [1, '#e6edf6']], showscale=False,
+            marker_line_color='#f5d90a', marker_line_width=1.8,
+            selected=dict(marker=dict(opacity=1.0)),
+            unselected=dict(marker=dict(opacity=1.0)),
+            hovertemplate=f'<b>{selected}</b><br>selected<extra></extra>',
+        ))
+
     fig.update_geos(
         projection_type='natural earth', showframe=False, showcoastlines=False,
         bgcolor='rgba(0,0,0,0)', landcolor='#11203a', showland=True,
@@ -160,7 +194,8 @@ def build_choropleth():
         paper_bgcolor='rgba(0,0,0,0)', geo_bgcolor='rgba(0,0,0,0)',
         legend=dict(orientation='h', y=-0.02, x=0.5, xanchor='center',
                     font=dict(color='#e6edf6', size=12), bgcolor='rgba(0,0,0,0)'),
-        font=dict(color='#e6edf6'), dragmode=False,
+        font=dict(color='#e6edf6'), dragmode='pan',
+        uirevision='keep-view',  # preserve the user's zoom/pan across reruns
     )
     return fig
 
@@ -263,6 +298,10 @@ def page_engine():
     b_tax, b_ets, b_int, sup = load_artifacts()
     inject_css()
 
+    countries = sup['country'].tolist()
+    st.session_state.setdefault('country', 'Sweden' if 'Sweden' in countries else countries[0])
+    st.session_state.setdefault('_last_map_pick', st.session_state['country'])
+
     st.markdown("<div class='eyebrow'>Carbon-pricing policy engine</div>", unsafe_allow_html=True)
     st.markdown("## Can a carbon price help meet Paris?")
     st.markdown(
@@ -277,16 +316,23 @@ def page_engine():
     map_col, ctrl_col = st.columns([1.45, 1], gap='large')
 
     with map_col:
-        st.markdown("<div class='eyebrow'>Pick a country</div>", unsafe_allow_html=True)
-        fig = build_choropleth()
-        st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
+        st.markdown("<div class='eyebrow'>Pick a country — click the map or use the dropdown</div>",
+                    unsafe_allow_html=True)
+        fig = build_choropleth(st.session_state['country'])
+        event = st.plotly_chart(fig, use_container_width=True, key='evmap',
+                                on_select='rerun', selection_mode='points',
+                                config={'scrollZoom': True, 'displayModeBar': False})
+        picked = picked_country(event)
+        if picked and picked != st.session_state['_last_map_pick']:
+            st.session_state['_last_map_pick'] = picked
+            st.session_state['country'] = picked
+            st.rerun()
         st.caption('Colour = evidence status (adopter / near / far) — NOT effect size. '
-                   'The effect is the same everywhere; the map only tells you how much to trust it.')
+                   'Click a country to select it; scroll to zoom, drag to pan.')
 
     with ctrl_col:
-        countries = sup['country'].tolist()
-        default = countries.index('Sweden') if 'Sweden' in countries else 0
-        country = st.selectbox('Country (sets confidence only)', countries, index=default)
+        country = st.selectbox('Country (sets confidence only)', countries, key='country')
+        st.session_state['_last_map_pick'] = country  # keep the map-click gate in sync
         row = sup[sup['country'] == country].iloc[0]
 
         color, label, blurb = TAG_STYLE[row.tag]
