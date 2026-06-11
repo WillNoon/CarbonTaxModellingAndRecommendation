@@ -131,25 +131,37 @@ with st.expander('How to read this — and what it cannot tell you'):
   the number is a weak prior. Effects are 3-year, on CO₂ per capita.
 """)
 
-with st.expander('Evidence base — how hard we tried to break this (and what survived)'):
+with st.expander('Evidence base — how hard we tried to break this (and what survived)', expanded=False):
     st.markdown("""
-We stress-tested the engine with five independent methods. The story is consistent across all of them:
+We stress-tested the ETS effect with **seven** independent methods. The story is consistent across all of them — and
+the **primary causal evidence** is now a *within-country* design that finally has a clean control group:
 
 | method | ETS | carbon tax |
 |---|---|---|
+| **Within-country sector DiD (Eurostat)** ⭐ | **clean ID — covered vs uncovered sectors, pre-trends pass, −3.4%/$10 (p=0.03)** | n/a |
+| EUTL installation 2013 auctioning | −27% power vs industry (upper bound; renewables-confounded) | — |
 | Bayesian dose-response (this engine) | robust, −7 to −10% @ €30 | weak, marginal |
 | Country-specific-trend control | **survives** (p<0.001) | **collapses** (flips sign) |
 | Transport (oil) CO₂ dose test | robust | null (p=0.37) |
 | Sweden external anchor (Andersson) | — | over-attributes; tax is transport-only |
-| Pre-1990 Nordic synthetic control | (no control group) | insignificant (Abadie p>0.25) |
-| EU-ETS synthetic control / SDID | *can't* identify — **no comparable control group exists** | — |
+| Pre-1990 Nordic SC / EU-ETS SDID | *can't* ID cross-country — no comparable control group | insignificant |
 
-**Two methodological lessons baked into this tool:**
-1. **Identification depends on the variation you have.** The ETS *price crashed and recovered* (€30→€5→€47) — variation a
-   trend can't fake — so a dose-response identifies it. The EU all adopted ETS *at once*, so a control-group method (synthetic
-   control / SDID) **cannot** work: there is no comparable un-priced economy to compare against.
-2. **The carbon tax is weak in *aggregate* data everywhere we looked** — but Andersson (2019) shows it works on *transport*
-   within Sweden. Aggregate CO₂ is simply the wrong outcome to see it. We report the tax as **unproven**, not as zero.
+**The breakthrough (⭐):** the EU ETS covers some sectors (power, industry) and not others (transport, buildings).
+Comparing **covered vs uncovered emissions *within the same country*** gives a control group, and country×year fixed
+effects absorb every country-wide confound. ETS-covered sectors decarbonised **~19% more** than uncovered by 2021,
+tracking the price — the cleanest causal evidence in the project.
 
-*(Full write-up: `docs/OVERNIGHT_SESSION_2026-06-11.md` and `docs/FINDINGS_LOG.md`.)*
+**Lessons baked into this tool:**
+1. **Identification depends on the variation you have**, not the fanciest method. Cross-country control-group methods
+   *fail* (everyone priced at once); within-country *and* price-variation designs *work*.
+2. **The carbon tax is weak in aggregate data everywhere** — Andersson (2019) shows it works on *transport* within
+   Sweden, but aggregate CO₂ is the wrong outcome. Reported as **unproven**, not zero.
+3. **A clean magnitude stays elusive** (price trends with time; treated sectors decarbonised for many reasons) — so we
+   report the ETS as *robustly real, ~−7 to −10% per €30*, honest about the residual uncertainty.
+
+*(Full write-up: `docs/FINDINGS_LOG.md` and `docs/OVERNIGHT_SESSION_2026-06-11.md`.)*
 """)
+    _es = os.path.join(HERE, '..', 'outputs', 'ets_covered_vs_uncovered_eventstudy.png')
+    if os.path.exists(_es):
+        st.image(_es, caption='Primary causal evidence: ETS-covered sectors decarbonise ~19% more than uncovered by 2021 '
+                              '(within-country DiD; flat pre-2005 = parallel trends).')
