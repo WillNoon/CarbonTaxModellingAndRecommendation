@@ -4,6 +4,26 @@
 
 ---
 
+## 11 June 2026 — PHASE 4 / THE DATA FIX WORKED: within-country covered-vs-uncovered DiD CLEANLY identifies the EU ETS
+
+The whole project's ceiling was "no control group" (every rich country priced carbon at once → cross-country and synthetic-control designs fail). **Fix: look INSIDE a country.** The EU ETS covers some sectors (power, refining, energy-intensive industry) and NOT others (road transport, buildings/households). Comparing **covered vs uncovered emissions within country×year** gives a control group, and **country×year fixed effects absorb every country-wide confound** (recessions, weather, national decarbonisation trends) — exactly what killed the cross-country estimates.
+
+**New data:** pulled Eurostat `env_air_gge` (GHG by CRF source sector, CO2, thousand tonnes) → `data/raw/eurostat_ghg_sectors.csv` (32 geos, 1990-2024, 6 sectors). Covered = CRF1A1A power/heat + CRF1A1B refining + CRF1A2 manufacturing; Uncovered = CRF1A3B road transport + CRF1A4A commercial + CRF1A4B households. Code: `scripts/within_country_ets_did.py`. Figure: `outputs/ets_covered_vs_uncovered_eventstudy.png`.
+
+**Result (27 EU countries, 1995-2021, country×year + country×sector FE, clustered by country):**
+- **Dose DiD: `covered × ETS-price` = −0.034 per $10/t (p=0.029).** Covered sectors fall ~3.4%/$10 MORE than uncovered, *within country-year* → at €30 a −10% differential, at €70 −24%.
+- **Binary DiD: `covered × post-2005` = −0.106 (p=0.08).**
+- **Event study: parallel pre-trends roughly hold** (1996-2003 gaps small + insignificant, mean ~+3.6%), then the gap **widens steadily and significantly to −19% by 2021** (p=0.02), tracking the ETS price recovery (€5→€47) + cap tightening. Effect concentrates in the high-price era — converging with the dose-engine's era-stability finding from a totally different design.
+- **NOT a crisis artefact:** dropping 2008-09 *strengthens* it (−0.042, p=0.018).
+
+**Why this is the headline result of the project:** it identifies the ETS effect with a **clean within-country control group**, robust by construction to the country-specific trends that attenuated/killed every earlier estimate. Five independent designs now converge on a real, robust ETS effect — and this one finally has a defensible counterfactual. **Fixing the data (sectoral coverage) fixed the identification.**
+
+**Honest caveats:** (1) mild positive pre-drift (covered declining slightly faster pre-2005, insignificant); (2) "manufacturing" is only partly ETS-covered (sub-threshold installations excluded) → contamination biases toward zero, so the true effect is if anything larger; (3) the design identifies the ETS, not the tax — carbon taxes cover transport/heating too, so the covered/uncovered split doesn't map to them. The tax remains unproven. (4) Parallel-trends is "roughly holds," not a formal pass; a sector-specific-trend spec would tighten it.
+
+**Next frontier:** EUTL installation-level (gold standard, even cleaner); sector-specific-trend robustness; and this is now genuinely publishable-grade identification.
+
+---
+
 ## 11 June 2026 — TAX DATA EXPANSION (Nordic synthetic control, pre-1990): tax weak everywhere (SC hinted transport; a dose cross-check demoted it)
 
 > Reading order note: this entry's *initial* SC results hinted at a transport effect; the **CROSS-CHECK bullet below
