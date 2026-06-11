@@ -12,12 +12,10 @@ from the characteristics of countries that adopt them requires careful methodolo
 
 ## Headline findings
 
-**EU ETS:** robust negative effect — approximately **−7 to −10% CO₂/capita over three years per
-$30/tonne**, robust across the designs the data supports (Bayesian dose-response engine,
-staggered-robust DiD, country-trend checks), with supportive — not clean — evidence from a
-within-country sector DiD. The effect is
-primarily transmitted through fuel-switching in power and manufacturing (the sectors the ETS
-actually covers).
+**EU ETS:** approximately **−7 to −10% CO₂/capita over three years per $30/tonne**, robust across
+the designs the data supports (Bayesian dose-response engine, staggered-robust DiD, country-trend
+checks), with supportive — not clean — evidence from a within-country sector DiD. The effect is
+concentrated in power and manufacturing, the sectors the ETS actually covers.
 
 **Carbon tax (standalone):** unproven in aggregate cross-country data. Binary TWFE +0.010 (p=0.57);
 dose slope −0.0013/tonne (p=0.15); collapses to near-zero under country-specific linear trends
@@ -38,7 +36,7 @@ governance WGI indicators), World Bank Carbon Pricing Dashboard (tax and ETS pri
 by sector.
 
 **Outcome:** 3-year forward log-change in CO₂/capita (`co2_per_capita_future_trend`), constructed
-so that t+3 ≤ 2021 (requires emissions through 2024, unlocked by the 2024 OWID release).
+so that t+3 ≤ 2021 (requires emissions through 2024, from the 2024 OWID release).
 
 **Treatment variables (clean, de-conflated):**
 
@@ -57,9 +55,9 @@ in models. See `docs/DATA_DICTIONARY.md` for the full variable reference.
 
 ---
 
-## Methods journey
+## Methods
 
-The project moved through five identification strategies, each motivated by a limitation of the last:
+Five identification strategies, each motivated by a limitation of the last:
 
 1. **Classical DiD (TWFE + staggered-robust DID2S)** — established the combined carbon-pricing ATT
    (~−0.15) and its robustness (placebo p=0.649, LOO [−0.153, −0.101], Goodman-Bacon 4.3% bad
@@ -94,9 +92,7 @@ for covariate personalization of country effects.
 
 ---
 
-## Intellectual honesty — findings retired under scrutiny
-
-The project documents what it retired, not just what survived:
+## Retired findings
 
 - **Democratic governance paradox** (April 2026): `democratic_legitimacy` appeared to negatively
   moderate effectiveness. Retired when the variable was correctly identified as PC3 (voice and
@@ -119,7 +115,7 @@ The project documents what it retired, not just what survived:
 │   ├── data_cleaning.ipynb              — full data pipeline (treatment-coding fix applied June 2026)
 │   ├── did_analysis.ipynb               — early exploratory DiD (superseded)
 │   ├── did_analysis_2.ipynb             — second-generation DiD (superseded)
-│   ├── causal_forest_analysis.ipynb     — CausalForestDML / OrthoForest (superseded banner present)
+│   ├── causal_forest_analysis.ipynb     — CausalForestDML / OrthoForest (superseded)
 │   ├── phase1_robustness_checks.ipynb   — placebo, LOO, Goodman-Bacon, Rambachan-Roth, Oster
 │   ├── causal_effects_library.ipynb     — heterogeneity interactions + per-country predicted ATTs
 │   ├── phase2_multipolicy.ipynb         — de-conflated DiD, dose-response, ForestDRLearner
@@ -184,5 +180,4 @@ and the dashboard runs without re-fitting the model.
 - Chernozhukov et al. (2018) — Double ML
 - McElreath (2020) — Statistical Rethinking
 
-*Solo learning project | Building causal inference, Bayesian modelling, and data product skills*
-*Data: 1996–2021 | 163 countries | Sources: OWID, World Bank, Eurostat*
+Solo learning project. Data 1996–2021, 163 countries (OWID, World Bank, Eurostat).

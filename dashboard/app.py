@@ -1,13 +1,11 @@
-"""Carbon-Pricing Policy Engine — Streamlit dashboard (map-first, honest-by-design).
+"""Carbon-pricing policy engine — Streamlit dashboard.
 
-Three pages:
-  1. Engine    — dark world choropleth picker + policy sliders + hero impact number.
-  2. Evidence  — the 7-method evidence table + event-study figure, told plainly.
-  3. Methods   — what was tested / survived / demoted + the identifying assumption.
+Pages: Engine (map picker + sliders + predicted impact), Evidence (method-by-method
+results + event study), Methods (identifying assumption, what survived/was demoted).
 
-The effect depends ONLY on the carbon prices (a pooled dose-response from a Bayesian
-Student-t panel model with country + year fixed effects). The selected country changes
-ONLY the confidence tag — never the effect (validated leave-one-country-out).
+The effect depends only on the carbon prices (pooled dose-response, Bayesian Student-t
+panel model with country + year FE). The selected country changes only the confidence
+tag, never the effect (leave-one-country-out validation).
 
 Run:  streamlit run dashboard/app.py
 """
@@ -20,30 +18,22 @@ import streamlit as st
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Science constants (verified against data/cleaned/final_analysis_data.csv, yr≤2018)
-# ─────────────────────────────────────────────────────────────────────────────
-# In-sample dose support tops out at these prices (the dose sample needs CO2 at t+3,
-# so it ends in 2018). Verified 2026-06-11:
-#   ets_price_only:  p99 = $34.5; exactly ONE point above ($55.5, Switzerland 2014).
-#                    The famous €47 EUA "recovery" is OUTSIDE the estimation sample.
-#   tax_price_only:  max = $168.8 (Sweden 2008).
-# All prices are US$/tonne (World Bank). Use >= for the boundary.
+# In-sample dose support (final_analysis_data.csv, yr<=2018 — the dose sample needs
+# CO2 at t+3). ets_price_only p99 = $34.5, one point above ($55.5, Switzerland 2014);
+# the 2021 €47 EUA price is outside the estimation sample. tax_price_only max = $168.8
+# (Sweden 2008). All prices US$/tonne (World Bank).
 ETS_OBS_MAX = 35.0    # $/tonne — in-sample ETS support ceiling (p99 ≈ $34.5)
 ETS_SPARSE_MAX = 55.0  # one lone Swiss point sits in the $35–55 sparse zone
 TAX_OBS_MAX = 169.0   # $/tonne — max observed tax (Sweden $168.8)
 
-# Robust ETS headline range that the audit certifies (per $30/tonne, 3-yr CO2/capita).
-ROBUST_LO, ROBUST_HI = -10.0, -7.0  # percent
+ROBUST_LO, ROBUST_HI = -10.0, -7.0  # robust ETS range, % per $30/tonne over 3 yr
 
-# Plotly choropleth colours by evidence/policy status.
 STATUS_COLOR = {
     'Adopter — data-informed': '#2dd4bf',   # teal
     'Near support':            '#3b82f6',   # blue
     'Far from support':        '#475569',   # slate
 }
 
-# Designed confidence-badge styling (tag → colour, label, blurb).
 TAG_STYLE = {
     'DATA-INFORMED': ('#2dd4bf', 'DATA-INFORMED',
                       'This country (or close peers) actually adopted carbon pricing — the estimate is data-informed.'),
@@ -53,8 +43,7 @@ TAG_STYLE = {
                       'This country is far outside the observed-adopter cloud — treat the number as a weak prior, not a prediction.'),
 }
 
-# country (OWID name) → ISO-3, for plotly locationmode='ISO-3'. Verified: all 163
-# names in country_support.csv map and render (no missing, no exceptions).
+# OWID country name → ISO-3 for the choropleth (all 163 names in country_support.csv map)
 ISO3 = {
     'Argentina': 'ARG', 'Australia': 'AUS', 'Austria': 'AUT', 'Belgium': 'BEL',
     'Bulgaria': 'BGR', 'Canada': 'CAN', 'Chile': 'CHL', 'Colombia': 'COL',
@@ -104,12 +93,9 @@ ISO3 = {
 }
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Data / artifacts (cached — loaded once, never on slider moves)
-# ─────────────────────────────────────────────────────────────────────────────
 @st.cache_data
 def load_artifacts():
-    """Posterior draws (4,000 each) + per-country support table. npz handle closed."""
+    """Posterior draws (4,000 each) + per-country support table."""
     with np.load(os.path.join(HERE, 'posterior.npz')) as pz:
         b_tax = pz['b_tax'].copy()
         b_ets = pz['b_ets'].copy()
@@ -128,12 +114,9 @@ def status_of(row):
 
 
 @st.cache_data
-def build_choropleth(theme_seq):
-    """The heavy world map. Cached — does NOT rebuild on slider moves.
-
-    Coloured by evidence/policy STATUS only (never per-country effect size — LOCO
-    forbids that). Hover shows the country's current observed tax / ETS prices.
-    """
+def build_choropleth():
+    """World map, cached so it never rebuilds on slider moves. Coloured by evidence
+    status only — LOCO rules out per-country effect sizes."""
     _, _, _, sup = load_artifacts()
     d = sup.copy()
     d['iso'] = d['country'].map(ISO3)
@@ -176,47 +159,40 @@ def build_choropleth(theme_seq):
     return fig
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Effect math (numpy on the 4,000 draws — trivial per interaction)
-# ─────────────────────────────────────────────────────────────────────────────
 def effect_draws(b_tax, b_ets, b_int, tax_price, ets_price):
-    """Posterior draws of the ANNUAL dlog CO2/capita effect of facing these prices."""
+    """Posterior draws of the annual dlog CO2/capita effect of facing these prices."""
     pt, pe = tax_price / 10.0, ets_price / 10.0
     return b_tax * pt + b_ets * pe + b_int * pt * pe
 
 
 def pct_change_3yr(eff):
-    """A2 FIX: log-points → percent properly. 3-yr compounded change = 100*(exp(3*eff)-1)."""
+    """3-yr compounded change in percent: 100*(exp(3*eff)-1), not log-points."""
     return 100.0 * np.expm1(eff * 3.0)
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Shared CSS (restrained, expensive-looking)
-# ─────────────────────────────────────────────────────────────────────────────
 def inject_css():
     st.markdown("""
     <style>
       .block-container { padding-top: 2.2rem; max-width: 1280px; }
       h1, h2, h3 { letter-spacing: -0.02em; }
-      .eyebrow { text-transform: uppercase; letter-spacing: 0.18em; font-size: 0.72rem;
+      .eyebrow { letter-spacing: 0.04em; font-size: 0.78rem;
                  color: #5eead4; font-weight: 600; margin-bottom: 0.2rem; }
-      .hero-num { font-size: 4.6rem; font-weight: 700; line-height: 1;
-                  letter-spacing: -0.04em; margin: 0.1rem 0; }
+      .hero-num { font-size: 4.2rem; font-weight: 700; line-height: 1;
+                  letter-spacing: -0.03em; margin: 0.1rem 0; }
       .hero-sub { color: #93a4bd; font-size: 0.95rem; }
-      .badge { display:inline-block; padding: 0.28rem 0.85rem; border-radius: 999px;
-               font-weight: 700; font-size: 0.78rem; letter-spacing: 0.06em; }
-      .cibar-track { position: relative; height: 12px; border-radius: 999px;
-                     background: linear-gradient(90deg,#0f766e,#2dd4bf 50%,#fbbf24);
-                     margin: 0.6rem 0 0.3rem 0; }
-      .cibar-fill { position:absolute; top:0; bottom:0; border-radius:999px;
-                    background: rgba(45,212,191,0.85); }
-      .cibar-mid { position:absolute; top:-4px; width:3px; height:20px; background:#e6edf6; border-radius:2px; }
+      .badge { display:inline-block; padding: 0.22rem 0.6rem; border-radius: 3px;
+               font-weight: 700; font-size: 0.78rem; }
+      .cibar-track { position: relative; height: 10px; border-radius: 2px;
+                     background: #16294a; margin: 0.6rem 0 0.3rem 0; }
+      .cibar-fill { position:absolute; top:0; bottom:0; border-radius:2px;
+                    background: rgba(45,212,191,0.8); }
+      .cibar-mid { position:absolute; top:-4px; width:3px; height:18px; background:#e6edf6; }
       .muted { color:#93a4bd; font-size:0.85rem; }
-      .card { background:#11203a; border:1px solid #1e3a5f; border-radius:12px;
-              padding:1.1rem 1.3rem; margin-bottom:0.9rem; }
+      .card { background:#11203a; border:1px solid #1e3a5f; border-radius:4px;
+              padding:1.0rem 1.2rem; margin-bottom:0.8rem; }
       .card h4 { margin:0 0 0.35rem 0; color:#5eead4; font-size:1.0rem; }
-      .pill { display:inline-block; font-size:0.7rem; padding:0.12rem 0.55rem; border-radius:6px;
-              font-weight:600; letter-spacing:0.04em; }
+      .pill { display:inline-block; font-size:0.7rem; padding:0.12rem 0.5rem; border-radius:3px;
+              font-weight:600; }
     </style>
     """, unsafe_allow_html=True)
 
@@ -227,14 +203,11 @@ def badge_html(tag):
             f"border:1px solid {color}66'>{label}</span>")
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# PAGE 1 — ENGINE
-# ─────────────────────────────────────────────────────────────────────────────
 def page_engine():
     b_tax, b_ets, b_int, sup = load_artifacts()
     inject_css()
 
-    st.markdown("<div class='eyebrow'>Carbon-Pricing Policy Engine</div>", unsafe_allow_html=True)
+    st.markdown("<div class='eyebrow'>Carbon-pricing policy engine</div>", unsafe_allow_html=True)
     st.markdown("## What does a carbon price do to emissions?")
     st.markdown(
         "<span class='muted'>Set a price. The predicted 3-year CO₂/capita effect comes from "
@@ -247,8 +220,8 @@ def page_engine():
     map_col, ctrl_col = st.columns([1.45, 1], gap='large')
 
     with map_col:
-        st.markdown("<div class='eyebrow'>Evidence map — pick a country</div>", unsafe_allow_html=True)
-        fig = build_choropleth(tuple(STATUS_COLOR.values()))
+        st.markdown("<div class='eyebrow'>Pick a country</div>", unsafe_allow_html=True)
+        fig = build_choropleth()
         st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
         st.caption('Colour = evidence status (adopter / near / far) — NOT effect size. '
                    'The effect is the same everywhere; the map only tells you how much to trust it.')
@@ -269,13 +242,12 @@ def page_engine():
                     f"governance z={row.impl_capacity_z:+.1f}</div>", unsafe_allow_html=True)
         st.markdown("<hr style='margin:0.9rem 0;border-color:#1e3a5f'>", unsafe_allow_html=True)
 
-        # The reactive section is a fragment: slider moves rerun ONLY this, not the map.
         _engine_fragment(b_tax, b_ets, b_int, color)
 
 
 @st.fragment
 def _engine_fragment(b_tax, b_ets, b_int, tag_color):
-    """Slider → hero → CI bar → dose curve. Reruns in isolation on slider moves."""
+    """Sliders + predicted impact. A fragment, so slider moves don't rerun the map."""
     ets_price = st.slider('ETS carbon price (US$/tonne)', 0, 100, 30, step=5)
     tax_price = st.slider('Carbon tax price (US$/tonne)', 0, 175, 0, step=5)
 
@@ -285,21 +257,19 @@ def _engine_fragment(b_tax, b_ets, b_int, tag_color):
     lo, hi = float(np.percentile(pct, 5)), float(np.percentile(pct, 95))
     p_reduce = float((eff < 0).mean())
 
-    # A4 FIX: neutral empty-state at zero prices.
     if tax_price == 0 and ets_price == 0:
         st.markdown("<div class='hero-num' style='color:#475569'>—</div>", unsafe_allow_html=True)
         st.markdown("<div class='hero-sub'>Set a price to see the predicted impact.</div>",
                     unsafe_allow_html=True)
         return
 
-    # HERO number
     hcol = '#2dd4bf' if mean_pct < 0 else '#fbbf24'
     st.markdown(f"<div class='hero-num' style='color:{hcol}'>{mean_pct:+.1f}%</div>",
                 unsafe_allow_html=True)
     st.markdown("<div class='hero-sub'>predicted CO₂/capita change over 3 years</div>",
                 unsafe_allow_html=True)
 
-    # Gradient credible-interval bar (replaces three identical metric boxes)
+    # credible-interval bar
     span = max(abs(lo), abs(hi), 1.0) * 1.15
     def x(v):  # map % onto 0..100 of the bar (centred on 0)
         return float(np.clip(50.0 + 50.0 * v / span, 0, 100))
@@ -319,27 +289,23 @@ def _engine_fragment(b_tax, b_ets, b_int, tag_color):
                 f"<b style='color:#e6edf6'>P(reduces emissions) = {p_reduce:.0%}</b></div>",
                 unsafe_allow_html=True)
 
-    # Robust-range anchor (ETS headline) built into the presentation
     st.markdown(f"<div class='muted' style='margin-top:0.5rem'>The robust ETS headline is "
                 f"<b style='color:#5eead4'>{ROBUST_LO:.0f}% to {ROBUST_HI:.0f}% per $30</b> over 3 years. "
                 f"Under a stricter spec (country-specific decarbonization trends) the ETS effect is "
                 f"~25% smaller — read a single point as the optimistic edge of that range.</div>",
                 unsafe_allow_html=True)
 
-    # ── Honest warnings ──────────────────────────────────────────────────────
-    # A1: marginal tax contribution. b_tax + b_int·Pets flips POSITIVE at ETS≈$28.
+    # marginal tax contribution flips positive at ETS ≈ $28 (b_tax + b_int*Pets > 0)
     pt, pe = tax_price / 10.0, ets_price / 10.0
-    marg_tax = (b_tax + b_int * pe) * pt          # tax's contribution to annual dlog
+    marg_tax = (b_tax + b_int * pe) * pt
     marg_tax_pct = float(np.median(marg_tax)) * 3 * 100
     if tax_price > 0 and marg_tax_pct > 0:
         st.warning(
-            "**The tax slider is currently *raising* the predicted number — read this as 'unproven', not 'harmful'.** "
-            "At this ETS level the fitted tax×ETS interaction pushes the tax contribution positive, but that is an "
-            "artifact of very thin joint data, not evidence that a tax backfires. The science verdict on the carbon "
-            "tax is **unproven** (weak across every design we tried), never *harmful*.")
+            "At this ETS price the fitted tax×ETS interaction pushes the tax contribution positive. "
+            "That reflects very thin joint data, not evidence that a tax backfires — the verdict on "
+            "the carbon tax is *unproven*, not harmful.")
 
-    # A1: JOINT-support extrapolation warning — fires when both prices > 0 and the
-    # interaction term contributes materially to the total.
+    # warn when the interaction term carries a material share of a combined-lever result
     if tax_price > 0 and ets_price > 0:
         total = b_tax * pt + b_ets * pe + b_int * pt * pe
         int_term = b_int * pt * pe
@@ -347,31 +313,27 @@ def _engine_fragment(b_tax, b_ets, b_int, tag_color):
         med_int = float(np.median(int_term))
         if abs(med_total) > 1e-9 and abs(med_int) > 0.15 * abs(med_total):
             st.warning(
-                "**Combined-lever result is illustrative.** The tax×ETS interaction is estimated from very little "
-                "joint variation (almost no country ran a high tax *and* a high ETS at once), so it is poorly pinned. "
-                "Treat any number that stacks both levers as illustrative, not a point estimate.")
+                "Combined-lever results are illustrative: the tax×ETS interaction is estimated from "
+                "very little joint variation (almost no country ran a high tax and a high ETS at once).")
 
-    # Always caveat the tax whenever it is on.
     if tax_price > 0:
-        st.caption("**Carbon-tax caveat:** the tax's effect is weak across every cross-country design we tried "
-                   "(fails the country-trend control on total CO₂, null in a transport-CO₂ dose test). Andersson "
-                   "(2019) finds a real *transport* effect within Sweden, but our cross-country data can't reproduce "
-                   "it. **The robust lever is ETS; treat the tax contribution as unproven.**")
+        st.caption("Carbon-tax caveat: the tax effect is weak in every cross-country design here "
+                   "(fails the country-trend control on total CO₂, null in a transport-CO₂ dose test). "
+                   "Andersson (2019) finds a real transport effect within Sweden, but cross-country data "
+                   "can't reproduce it. The robust lever is the ETS; treat the tax contribution as unproven.")
 
-    # A3: extrapolation warnings (>= boundary, $35 ETS / $169 tax).
     if ets_price >= ETS_OBS_MAX or tax_price >= TAX_OBS_MAX:
         msg = []
         if ets_price >= ETS_OBS_MAX:
-            msg.append(f"ETS support tops out near **\\${ETS_OBS_MAX:.0f}** in the estimation sample "
-                       f"(one lone Swiss point sits in the sparse \\${ETS_OBS_MAX:.0f}–\\${ETS_SPARSE_MAX:.0f} zone; "
-                       f"the famous €47 EUA recovery is *outside* the sample).")
+            msg.append(f"ETS support tops out near \\${ETS_OBS_MAX:.0f} in the estimation sample "
+                       f"(one Swiss point in the \\${ETS_OBS_MAX:.0f}–\\${ETS_SPARSE_MAX:.0f} zone; "
+                       f"the 2021 €47 EUA price is outside the sample).")
         if tax_price >= TAX_OBS_MAX:
-            msg.append(f"tax support tops out at **\\${TAX_OBS_MAX:.0f}** (Sweden).")
-        st.info("**Extrapolating beyond observed prices.** " + " ".join(msg) +
-                " The linear dose is unidentified up here — a diminishing-returns curve fits the data equally "
-                "well and predicts a smaller effect. Read high-price numbers as the optimistic edge of a wide range.")
+            msg.append(f"tax support tops out at \\${TAX_OBS_MAX:.0f} (Sweden).")
+        st.info("Extrapolating beyond observed prices. " + " ".join(msg) +
+                " The linear dose is unidentified up here — a diminishing-returns curve fits the data "
+                "equally well and predicts a smaller effect.")
 
-    # ── Dose-response curve (plotly; A2 percent conversion baked in) ──────────
     st.markdown("<div class='eyebrow' style='margin-top:0.8rem'>Dose-response · effect vs. ETS price</div>",
                 unsafe_allow_html=True)
     grid = np.arange(0, 101, 2.0)
@@ -416,9 +378,6 @@ def _engine_fragment(b_tax, b_ets, b_int, tag_color):
                "vary by country here).")
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# PAGE 2 — EVIDENCE
-# ─────────────────────────────────────────────────────────────────────────────
 def page_evidence():
     inject_css()
     st.markdown("<div class='eyebrow'>The evidence</div>", unsafe_allow_html=True)
@@ -480,15 +439,10 @@ def page_evidence():
                              'for the endpoint.')
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# PAGE 3 — METHODS & HONESTY
-# ─────────────────────────────────────────────────────────────────────────────
 def page_methods():
     inject_css()
-    st.markdown("<div class='eyebrow'>Methods & honesty</div>", unsafe_allow_html=True)
+    st.markdown("<div class='eyebrow'>Methods</div>", unsafe_allow_html=True)
     st.markdown("## What we tested, what survived, what we demoted")
-    st.markdown("<span class='muted'>This page is the differentiator: the honest accounting of how hard we tried "
-                "to break the result, and what didn't survive.</span>", unsafe_allow_html=True)
     st.write('')
 
     c1, c2, c3 = st.columns(3, gap='medium')
@@ -502,7 +456,7 @@ def page_methods():
     with c2:
         st.markdown("<div class='card'><h4 style='color:#fbbf24'>Demoted</h4>"
                     "<div class='muted'>"
-                    "• Sector-DiD ⭐ \"clean ID\" → <b>supportive only</b> (pre-trend test was miscomputed; "
+                    "• Sector-DiD \"clean ID\" → <b>supportive only</b> (pre-trend test was miscomputed; "
                     "corrected test rejects, p≈0.004)<br>"
                     "• \"Tax & ETS are substitutes\" → <b>suggestive</b>, not fact<br>"
                     "• \"Fossil dependence hurts\" → retired (was an imputation-flag artifact)</div></div>",
@@ -539,18 +493,15 @@ def page_methods():
         "- **Effects are 3-year, on CO₂ per capita.** Identification rests on ~26 tax / ~29 ETS countries, almost "
         "all high-income EU. For *far* countries the number is a weak prior.")
     st.caption("Prices are US\\$/tonne (World Bank). For rough context, the ETS slider's \\$30 ≈ €28 at recent rates; "
-               "the famous €47 EUA recovery (≈ \\$50) sits outside this engine's estimation sample.")
+               "the 2021 €47 EUA price (≈ \\$50) sits outside this engine's estimation sample.")
 
 
-# ─────────────────────────────────────────────────────────────────────────────
-# Navigation
-# ─────────────────────────────────────────────────────────────────────────────
-st.set_page_config(page_title='Carbon-Pricing Policy Engine', layout='wide',
+st.set_page_config(page_title='Carbon-pricing policy engine', layout='wide',
                    initial_sidebar_state='expanded')
 
 nav = st.navigation([
     st.Page(page_engine, title='Engine', default=True),
     st.Page(page_evidence, title='Evidence'),
-    st.Page(page_methods, title='Methods & honesty'),
+    st.Page(page_methods, title='Methods'),
 ])
 nav.run()
