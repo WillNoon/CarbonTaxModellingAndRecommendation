@@ -28,6 +28,12 @@ TAX_OBS_MAX = 169.0   # $/tonne — max observed tax (Sweden $168.8)
 
 ROBUST_LO, ROBUST_HI = -10.0, -7.0  # robust ETS range, % per $30/tonne over 3 yr
 
+# Paris-aligned annual emission-cut pace, from IPCC AR6 (2022) global pathways:
+#   1.5°C (no/limited overshoot): GHG −43% by 2030 vs 2019 → ≈ −5.0%/yr
+#   2°C:                          GHG −27% by 2030 vs 2019 → ≈ −2.7%/yr
+PARIS_15C = 5.0   # %/yr reduction implied by a 1.5°C pathway
+PARIS_2C = 2.7    # %/yr reduction implied by a 2°C pathway
+
 STATUS_COLOR = {
     'Adopter — data-informed': '#2dd4bf',   # teal
     'Near support':            '#3b82f6',   # blue
@@ -170,11 +176,34 @@ def pct_change_3yr(eff):
     return 100.0 * np.expm1(eff * 3.0)
 
 
+def annual_rate(pct3):
+    """Annualised %/yr reduction implied by a 3-yr change. Positive = a cut."""
+    return -((1.0 + pct3 / 100.0) ** (1.0 / 3.0) - 1.0) * 100.0
+
+
+def paris_verdict(rate):
+    """Map an annual %/yr cut onto the Paris benchmark ladder."""
+    if rate >= PARIS_15C:
+        return "keeps pace with a 1.5 °C pathway", '#2dd4bf'
+    if rate >= PARIS_2C:
+        return "sits between the 2 °C and 1.5 °C pace", '#5eead4'
+    if rate > 0:
+        return "is below even the 2 °C pace — a contribution, not enough alone", '#fbbf24'
+    return "delivers no cut at this price", '#94a3b8'
+
+
 def inject_css():
     st.markdown("""
     <style>
-      .block-container { padding-top: 2.2rem; max-width: 1280px; }
+      .block-container { padding-top: 4rem; max-width: 1280px; }
+      header[data-testid="stHeader"] { background: transparent; }
       h1, h2, h3 { letter-spacing: -0.02em; }
+      .pbar-track { position: relative; height: 8px; border-radius: 2px;
+                    background: #16294a; margin: 1.1rem 0 1.9rem 0; }
+      .pbar-fill { position:absolute; top:0; bottom:0; left:0; border-radius:2px; }
+      .pbar-tick { position:absolute; top:-5px; width:2px; height:18px; background:#93a4bd; }
+      .pbar-lab { position:absolute; top:14px; font-size:0.68rem; color:#93a4bd;
+                  transform:translateX(-50%); white-space:nowrap; }
       .eyebrow { letter-spacing: 0.04em; font-size: 0.78rem;
                  color: #5eead4; font-weight: 600; margin-bottom: 0.2rem; }
       .hero-num { font-size: 4.2rem; font-weight: 700; line-height: 1;
@@ -203,15 +232,43 @@ def badge_html(tag):
             f"border:1px solid {color}66'>{label}</span>")
 
 
+def _paris_check(mean_pct):
+    """Put the predicted pace next to the IPCC AR6 Paris benchmarks, honestly."""
+    rate = annual_rate(mean_pct)            # %/yr cut implied by the 3-yr effect
+    verdict, vc = paris_verdict(rate)
+    scale = 6.0                             # bar runs 0 → 6 %/yr
+    def x(v):
+        return float(np.clip(v / scale * 100.0, 0, 100))
+    st.markdown("<div class='eyebrow' style='margin-top:1rem'>Paris check</div>",
+                unsafe_allow_html=True)
+    st.markdown(
+        f"<span class='muted'>At this price, emissions fall about "
+        f"<b style='color:{vc}'>{max(rate,0):.1f}%/yr</b> (annualising the 3-year effect). "
+        f"That <b style='color:{vc}'>{verdict}</b>.</span>", unsafe_allow_html=True)
+    st.markdown(
+        f"<div class='pbar-track'>"
+        f"<div class='pbar-fill' style='width:{x(max(rate,0))}%;background:{vc}99'></div>"
+        f"<div class='pbar-tick' style='left:{x(PARIS_2C)}%'></div>"
+        f"<div class='pbar-tick' style='left:{x(PARIS_15C)}%'></div>"
+        f"<div class='pbar-lab' style='left:{x(PARIS_2C)}%'>2 °C · {PARIS_2C:.1f}%/yr</div>"
+        f"<div class='pbar-lab' style='left:{x(PARIS_15C)}%'>1.5 °C · {PARIS_15C:.0f}%/yr</div>"
+        f"</div>", unsafe_allow_html=True)
+    st.caption("Benchmarks are IPCC AR6 (2022) global pathways (GHG −27% / −43% by 2030 vs 2019). "
+               "Illustrative only: the model effect is a short-run estimate that may not persist, "
+               "the benchmarks are global GHG (not one country's per-capita CO₂), and pricing is one "
+               "lever among many. Carbon pricing helps close the gap; it does not close it alone.")
+
+
 def page_engine():
     b_tax, b_ets, b_int, sup = load_artifacts()
     inject_css()
 
     st.markdown("<div class='eyebrow'>Carbon-pricing policy engine</div>", unsafe_allow_html=True)
-    st.markdown("## What does a carbon price do to emissions?")
+    st.markdown("## Can a carbon price help meet Paris?")
     st.markdown(
         "<span class='muted'>Set a price. The predicted 3-year CO₂/capita effect comes from "
-        "the <b>price</b> — a pooled Bayesian dose-response. "
+        "the <b>price</b> — a pooled Bayesian dose-response — and the <b>Paris check</b> below puts "
+        "it next to the pace the IPCC says a 1.5 °C / 2 °C pathway needs. "
         "<b>The country you pick sets the confidence, not the effect</b> "
         "(validated leave-one-country-out: country traits can't predict who beats the average). "
         "Prices are US$/tonne.</span>", unsafe_allow_html=True)
@@ -294,6 +351,8 @@ def _engine_fragment(b_tax, b_ets, b_int, tag_color):
                 f"Under a stricter spec (country-specific decarbonization trends) the ETS effect is "
                 f"~25% smaller — read a single point as the optimistic edge of that range.</div>",
                 unsafe_allow_html=True)
+
+    _paris_check(mean_pct)
 
     # marginal tax contribution flips positive at ETS ≈ $28 (b_tax + b_int*Pets > 0)
     pt, pe = tax_price / 10.0, ets_price / 10.0
