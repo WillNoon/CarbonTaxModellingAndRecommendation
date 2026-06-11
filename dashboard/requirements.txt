@@ -1,7 +1,8 @@
 # Runtime deps for deploying dashboard/app.py (e.g. Streamlit Community Cloud).
 # NOTE: pymc/nutpie are deliberately NOT here — the posterior is precomputed and committed
 # (posterior.npz, country_support.csv), so no model fitting happens at runtime. Keeps the deploy light.
-streamlit>=1.40
-numpy>=1.26
-pandas>=2.0
-matplotlib>=3.8
+# Charts are plotly (interactive); matplotlib is intentionally NOT a runtime dep.
+streamlit>=1.40,<2.0
+numpy>=1.26,<3.0
+pandas>=2.0,<3.0
+plotly>=5.20,<7.0

@@ -1,0 +1,12 @@
+# Streamlit Community Cloud reads this file from the REPO ROOT.
+# Theme: deep navy base, teal/aqua accents, clean sans typography.
+[theme]
+base = "dark"
+primaryColor = "#2dd4bf"
+backgroundColor = "#0a1628"
+secondaryBackgroundColor = "#11203a"
+textColor = "#e6edf6"
+font = "sans serif"
+
+[server]
+headless = true

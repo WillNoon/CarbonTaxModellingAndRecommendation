@@ -2,7 +2,8 @@
 # over pyproject.toml, so the heavy modelling deps (pymc/nutpie/pyfixest) are NOT installed in the cloud.
 # The dashboard needs only these at runtime: the Bayesian posterior is precomputed and committed
 # (dashboard/posterior.npz, dashboard/country_support.csv), so no model fitting happens on deploy.
-streamlit>=1.40
-numpy>=1.26
-pandas>=2.0
-matplotlib>=3.8
+# Charts are plotly (interactive); matplotlib is intentionally NOT a runtime dep.
+streamlit>=1.40,<2.0
+numpy>=1.26,<3.0
+pandas>=2.0,<3.0
+plotly>=5.20,<7.0
