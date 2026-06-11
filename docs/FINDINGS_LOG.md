@@ -4,6 +4,16 @@
 
 ---
 
+## 11 June 2026 — CAPSTONE: Phase 4 sector DiD is the best ETS identification public data allows; threshold-RD frontier documented
+
+Closed the identification arc. Pushed public data across three resolutions — **country** (dose-response / synthetic control), **sector** (Eurostat covered-vs-uncovered DiD), **installation** (EUTL auctioning DiD). The **Phase 4 within-country sector DiD is the cleanest** (clean control group, pre-trends pass p=0.41, −3.4%/$10) and stands as the **identification capstone**.
+
+The one rung higher — an **RD/matching on the ~20MW ETS inclusion threshold** (barely-covered vs barely-uncovered plants; Colmer et al. 2024) — is **blocked by data access, not method**: it needs plant-level emissions *below* the ETS threshold, which EUTL (covered-only) and E-PRTR (100kt threshold, above the ETS cutoff) don't provide; the literature used confidential UK/French secure-lab micro-data. Full design + access path recorded in `docs/FUTURE_DATA_EXPANSION.md` (won't pursue — no institutional access).
+
+**Final ETS verdict:** robustly real and directionally consistent across all designs (~−7 to −10%/€30 dose; covered sectors ~−19% vs uncovered by 2021), best-identified by the sector DiD; clean point magnitude remains inherently uncertain (price trends with time; treated sectors decarbonised for many reasons). **Tax: unproven** in aggregate, transport-only per Andersson. **Next: ship the dashboard.**
+
+---
+
 ## 11 June 2026 — PHASE 4b / EUTL installation-level (gold-standard data): confirms direction, but the confound is fundamental
 
 Got the actual installation-level data — EU ETS Data Package (Abrell, Zenodo rec 20509231, 492MB; kept a 1.1MB compact installation-year panel `data/raw/eutl_installation_panel.csv.gz`, dropped the 408MB transaction log). 195k installation-years, 17k installations, 32 countries, verified emissions + free allocation per installation. Code `scripts/eutl_auctioning_did.py`, figure `outputs/eutl_auctioning_eventstudy.png`.

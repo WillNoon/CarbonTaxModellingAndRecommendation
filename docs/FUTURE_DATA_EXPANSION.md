@@ -57,3 +57,56 @@ This maps directly onto the planned `ForestDRLearner` categorical treatment (0=n
 3. **Multi-policy model:** `ForestDRLearner` on the 4-cell categorical treatment with the validated confounders; compare tax vs ETS vs both, with heterogeneity by the Phase 1 moderators (capacity, fossil dependence).
 4. **Dose-response:** once ETS price and tax rate are separated, continuous-treatment causal forest with `PolynomialFeatures(degree=2)`.
 5. **Source the gaps** (coverage time series, subsidies pre-2010) in parallel; they improve the effective-price and subsidy-interaction analyses but are not blockers for steps 1–3.
+
+---
+
+## ETS identification frontier — the inclusion-threshold RD (FUTURE WORK, scoped 11 June 2026)
+
+**Status:** Phase 4 (within-country covered-vs-uncovered sector DiD, Eurostat) is the **best EU-ETS identification
+achievable with public data** — clean control group, pre-trends pass, −3.4%/$10. The *only* design that would go
+cleaner is a **regression discontinuity / matching on the ETS inclusion threshold**, and it is **blocked by data
+access**, not by method. This note records the design so it can be run if micro-data access is ever obtained.
+
+### The design (Colmer, Martin, Muûls & Wagner 2024; Wagner et al.)
+The EU ETS covers combustion installations with **rated thermal input > 20 MW** (and certain ~25 kt CO₂ thresholds).
+Installations **just above** vs **just below** that cutoff are near-identical in size, sector, and technology — and
+coverage near the threshold is "as good as random." So:
+- **Running variable:** rated thermal input (MW) — or capacity proxy.
+- **Treatment:** ETS coverage (1 if above threshold).
+- **Estimand:** local jump in emissions / emission-intensity at the cutoff = causal ETS effect on *comparable* plants.
+- **Why it beats every design we ran:** it identifies off **cross-sectional** variation at a fixed threshold, so it
+  is immune to the price-vs-time-trend collinearity AND to the power-sector-renewables confound that limit the
+  dose-response, the sector DiD, and the EUTL auctioning DiD. This is the genuine gold standard.
+- **Matching alternative:** match each ETS installation to similar non-ETS installations (size, sector, country),
+  diff-in-diff on emissions. Same data requirement.
+
+### Why public data cannot do it (checked 11 June 2026)
+The RD/matching needs emissions for installations **below** the ETS threshold (the uncovered controls). None of the
+open sources reach them:
+- **EUTL** (Zenodo rec 20509231) = the ETS registry → *covered installations only*, by construction no sub-threshold units.
+- **E-PRTR / EEA Industrial Emissions** = the one public EU-wide register with non-ETS facilities, BUT its CO₂
+  reporting threshold is **100 kt/yr**, ~4× *above* the ETS threshold → the marginal below-ETS plants are invisible.
+- The published studies used **confidential national administrative micro-data** (UK Business Structure Database +
+  energy returns; French EACEI energy survey) — plant-level energy/emissions for *all* plants, ETS and not.
+
+### Data-access path (if ever pursued)
+- **UK:** ONS Secure Research Service (SRS) — Business Structure Database + ARD/energy; requires accredited researcher
+  status + project approval (weeks–months).
+- **France:** CASD (Centre d'accès sécurisé aux données) — EACEI industrial energy-consumption survey.
+- **Germany / others:** national statistical office research data centres (FDZ) with energy-use micro-data.
+- Each needs institutional affiliation + an application; none is a download.
+
+### Ready-to-run spec (once micro-data is in hand)
+```
+# panel: plant_id, year, co2 (or energy*emission_factor), rated_MW, sector, country, ETS_covered
+run = rated_MW - 20                      # distance to threshold
+rdrobust(y=log_co2_intensity, x=run, c=0,         # local-linear RD at the cutoff
+         covs=[sector, country, year], cluster=plant)
+# + donut RD (drop |run|<epsilon for manipulation), McCrary density test for bunching at 20MW,
+#   placebo cutoffs, and a matched DiD (CEM/PSM on size+sector) as the robustness twin.
+```
+
+### Bottom line
+We pushed public data to its limit across three resolutions (country → sector → installation). The threshold RD is
+the one rung higher, and it requires secure-lab micro-data. **Phase 4 stands as the identification capstone for this
+project.** This note is the map for anyone who later gets the keys.
