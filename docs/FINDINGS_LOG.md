@@ -16,11 +16,18 @@ The whole project's ceiling was "no control group" (every rich country priced ca
 - **Event study: parallel pre-trends roughly hold** (1996-2003 gaps small + insignificant, mean ~+3.6%), then the gap **widens steadily and significantly to −19% by 2021** (p=0.02), tracking the ETS price recovery (€5→€47) + cap tightening. Effect concentrates in the high-price era — converging with the dose-engine's era-stability finding from a totally different design.
 - **NOT a crisis artefact:** dropping 2008-09 *strengthens* it (−0.042, p=0.018).
 
-**Why this is the headline result of the project:** it identifies the ETS effect with a **clean within-country control group**, robust by construction to the country-specific trends that attenuated/killed every earlier estimate. Five independent designs now converge on a real, robust ETS effect — and this one finally has a defensible counterfactual. **Fixing the data (sectoral coverage) fixed the identification.**
+**Why this is the strongest ETS evidence in the project:** it uses a **clean within-country control group**; country×year FE absorb every *country-wide* confound (this part IS robust by construction); five independent designs now converge on a real ETS effect; and this one finally has a defensible counterfactual. **Fixing the data (sectoral coverage) materially improved the identification.**
 
-**Honest caveats:** (1) mild positive pre-drift (covered declining slightly faster pre-2005, insignificant); (2) "manufacturing" is only partly ETS-covered (sub-threshold installations excluded) → contamination biases toward zero, so the true effect is if anything larger; (3) the design identifies the ETS, not the tax — carbon taxes cover transport/heating too, so the covered/uncovered split doesn't map to them. The tax remains unproven. (4) Parallel-trends is "roughly holds," not a formal pass; a sector-specific-trend spec would tighten it.
+**TIGHTENING (#1, run same day) — honest mixed result:**
+- **Formal pre-trend test PASSES:** joint test of 1996-2003 covered:year gaps χ²(8)=8.3, **p=0.41** → parallel trends formally holds (better than the tax ever managed).
+- **Sector decomposition (great mechanism evidence):** power/heat −0.049 (p=0.02), manufacturing −0.046 (p=0.005), **refining +0.001 (p=0.95, null)** — concentrated in sectors with real abatement options, not refining (few options + free allocation). A pure secular trend wouldn't single those out.
+- **⚠️ BUT covered:Pets does NOT survive a covered-specific linear trend** (−0.034 → −0.0014, p=0.81). The **same price-vs-trend collinearity that sank the tax**: the ETS price drifts up over the sample, so "price effect" vs "covered-sector trend" can't be fully separated. *Defence:* since pre-trends are FLAT, a covered-linear-trend is **over-controlling** (it imposes a trend on a post-2005 break, absorbing the treatment — the standard "don't add unit trends when pre-trends are clean" caution). So the result stands, but is NOT bulletproof.
 
-**Next frontier:** EUTL installation-level (gold standard, even cleaner); sector-specific-trend robustness; and this is now genuinely publishable-grade identification.
+**Corrected bottom line:** strongest ETS identification we have (clean control group + passing pre-trends + sector-specificity + not crisis-driven), genuinely stronger than the tax — but it still shares the project's deep, recurring fragility: **the carbon price trends with time, so no design here fully escapes price-vs-trend collinearity.** Honest, not bulletproof.
+
+**Other caveats:** "manufacturing" only partly ETS-covered (sub-threshold plants excluded → bias toward zero); design identifies the ETS, not the tax (taxes also cover transport/heating). 
+
+**Next frontier:** EUTL installation-level — installation entry/exit + free-allocation variation could provide *non-trend* identification that finally breaks the price-vs-trend collinearity. That's the gold standard.
 
 ---
 

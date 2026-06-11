@@ -46,7 +46,21 @@ print(f"  => covered sectors fall {b*100:+.1f}% per $10/t MORE than uncovered (a
 
 # robustness: drop the 2008-09 financial-crisis years (they hit covered industry hard, non-ETS)
 m_nocrisis = pf.feols("logco2 ~ covered:Pets | gy + gs", data=df[~df['year'].isin([2008, 2009])], vcov={'CRV1': 'geo'})
-print(f"  drop 2008-09 crisis years: covered:Pets = {m_nocrisis.coef()['covered:Pets']:+.4f} (p={m_nocrisis.tidy()['Pr(>|t|)'].iloc[0]:.3f})")
+print(f"  drop 2008-09 crisis years: covered:Pets = {m_nocrisis.coef()['covered:Pets']:+.4f} (p={m_nocrisis.tidy()['Pr(>|t|)'].iloc[0]:.3f})  (STRONGER => not a crisis artefact)")
+
+# --- TIGHTENING (#1): covered-specific trend, formal pre-trend test, sector decomposition ---
+df['yr_c'] = df['year'] - df['year'].mean()
+m_tr = pf.feols("logco2 ~ covered:Pets + covered:yr_c | gy + gs", data=df, vcov={'CRV1': 'geo'})
+print(f"\n  + covered-specific linear trend: covered:Pets = {m_tr.tidy().loc['covered:Pets','Estimate']:+.4f} "
+      f"(p={m_tr.tidy().loc['covered:Pets','Pr(>|t|)']:.3f})  <- COLLAPSES (price drifts up => collinear w/ trend; "
+      f"but pre-trends are flat, so this over-controls)")
+for s in ['power_heat', 'refining', 'manufacturing']:
+    df[f'is_{s}'] = (df['sec'] == s).astype(int)
+md = pf.feols("logco2 ~ is_power_heat:Pets + is_refining:Pets + is_manufacturing:Pets | gy + gs", data=df, vcov={'CRV1': 'geo'})
+print("  sector decomposition (vs uncovered baseline):")
+for k in ['is_power_heat:Pets', 'is_refining:Pets', 'is_manufacturing:Pets']:
+    r = md.tidy().loc[k]
+    print(f"    {k.replace('is_','').replace(':Pets',''):14s} {r['Estimate']:+.4f}/$10t (p={r['Pr(>|t|)']:.3f})")
 
 # --- event study + figure ---
 es = pf.feols("logco2 ~ i(year, covered, ref=2004) | gy + gs", data=df, vcov={'CRV1': 'geo'})
