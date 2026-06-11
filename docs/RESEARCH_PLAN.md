@@ -1,6 +1,11 @@
 # Research Plan — Carbon Tax Policy Recommendation Engine
 ## Implementation Timeline
 
+> **Note (11 June 2026): This is a historical planning document.**
+> It was written at the start of the project (April 2026) and documents intended methods and
+> early findings. Several claims have been revised or retired since. See `docs/FINDINGS_LOG.md`
+> for the current state of all findings. Key corrections to specific items are annotated inline.
+
 ---
 
 ## Vision
@@ -46,8 +51,15 @@ This is also a learning project — building skills in causal inference, ML hete
 
 **Key Findings So Far:**
 - Carbon tax ATT: ~-0.18 (significant, robust across specs)
+  *(Note: number wrong and label wrong. The validated ATT is −0.154 on the corrected data, and it
+  measures **combined carbon pricing** (tax + ETS conflated), not the carbon tax alone. The
+  standalone tax is +0.010, p=0.80 after de-conflation. See FINDINGS_LOG 2 June + 11 June 2026.)*
 - Democratic paradox: democratic_legitimacy (PC2) negatively correlated with effectiveness
+  *(Note: RETIRED. PC2 loads on political_stability, not democracy. Under the correct PC3 proxy
+  the interaction is p=0.27 and sign-unstable. See FINDINGS_LOG 2 June 2026.)*
 - Policy decay: ~1% effectiveness loss per year post-implementation
+  *(Note: unvalidated on corrected data; estimate used conflated treatment + mis-named
+  years_since_tax variable. Do not cite. See FINDINGS_LOG April 2026 annotation.)*
 - OrthoForest stable across seeds (SD 0.031–0.055)
 
 ---
@@ -232,6 +244,7 @@ Combined Effect = structural_combination(individual_effects, interactions)
 | Variable | Reason |
 |----------|--------|
 | Sectoral emissions breakdowns | Time-intensive, largely captured by energy mix |
+| *(Note: ironically, sectoral emissions became Phase 4's best identification attempt — the Eurostat covered-vs-uncovered sector DiD. Still supportive rather than clean ID after the June 2026 audit, but it was worth pursuing.)* | |
 | City-level policy variations | Scope creep |
 | Carbon intensity improvements | Outcome, not input — reverse causality |
 | Clean tech deployment | Potentially caused by carbon taxes — endogenous |

@@ -4,13 +4,107 @@
 
 ---
 
+## 11 June 2026 — Post-deployment full audit + corrections (AUDIT_2026-06-11)
+
+Full four-track audit (data, methodology, documentation, dashboard) run after dashboard deployment.
+Numbers below all verified and reproduced from `scripts/audit_sensitivity.py` and the audit_fixes docs.
+
+### Treatment-coding fix (F1+F2+F3)
+
+**`has_ets` had five countries incorrectly coded as never-treated.** The EU member list had name
+mismatches and no accession logic. After correction:
+
+| Country | Before | After |
+|---|---|---|
+| Czechia | never coded (name mismatch) | 2005–2021 |
+| United Kingdom | never coded | 2005–2021 (UK ETS 2021 @ EUA proxy) |
+| Norway | never coded | 2008–2021 (EEA member) |
+| Iceland | never coded | 2008–2021 (EEA member) |
+| South Korea | never coded (filter dropped "Korea, Rep.") | 2015–2021 (KETS) |
+| Bulgaria, Romania | coded from 2005 | corrected to 2007 (accession year) |
+| Croatia | coded from 2005 | corrected to 2013 (accession year) |
+
+**`has_tax` onsets** were price-data artefacts (`has_tax = (tax_price > 0)`), not implementation
+years. Corrected for Denmark (1992→1996 panel start), Finland (1990→1996), Slovenia (1996 from 2007),
+Estonia (2000 from 2011), Latvia (2004 from 2014), Ukraine (2011 from 2016), Portugal (2015 from 2019),
+Mexico (2014 from 2015), South Africa (2019 from 2020).
+
+**`years_since_tax`** was actually "years since first ANY pricing (tax OR ETS)" — renamed
+`years_since_any_pricing`. New per-instrument `years_since_tax` and `years_since_ets` added.
+
+Total adopters: **44** (was ~39); outcome `co2_per_capita_future_trend` is byte-for-byte unchanged.
+
+### Conclusions survive and strengthen
+
+Re-runs on corrected data (see `docs/audit_fixes/rerun_numbers.md`):
+
+| Spec | Before fix | After fix | Verdict |
+|---|---|---|---|
+| Dose `b_ets` per $10 | −0.0102 (p<.0001) | **−0.0100 (p<.0001)** | Headline unchanged |
+| Dose `b_tax` per $10 | −0.0014 (p=.15) | **−0.0013 (p=.15)** | Tax still weak |
+| Binary `has_ets` | −0.108 (p=.12) | **−0.153 (p=.005)** | ETS *strengthens* (5 new countries) |
+| Binary `has_tax` | −0.027 (p=.57) | **+0.010 (p=.80)** | Tax weakens further |
+
+Phase 1 robustness suite (corrected data + real `fossil_pct`): TWFE ATT −0.154 (SE=0.044, p=0.001);
+DID2S −0.161 (SE=0.051, p=0.002); placebo −0.020 (p=0.649, n.s.); LOO [−0.153, −0.101], 0 sign flips;
+Goodman-Bacon 4.3% bad weight (weighted avg −0.154 matches TWFE); Rambachan-Roth F=2.243 (p=0.067),
+max δ̄=0.0672; Oster δ*=2.529 at Rmax=1.5 (OVB must be 2.5× observed selection to zero the effect).
+
+### Pre-trend correction (sector DiD, C-1)
+
+The Phase-4 "pre-trends pass, χ²(8)=8.3, p=0.41" claim was computed as a diagonal Wald (ignoring
+coefficient covariances). The correct **full-covariance Wald rejects parallel trends**:
+
+- χ²(8) = **31.23**, p = **0.0001**
+- Conservatively F(8,26) = **3.90**, p = **0.0038**
+- Wild-cluster bootstrap p = **0.019**
+
+Pre-2005 covered-vs-uncovered gaps decline monotonically. Pre-period covered-specific trend:
+**−1.25%/yr (SE 0.72, p=0.093)**, extrapolating to **−20% by 2021** — equals/exceeds the entire
+−19% endpoint. Rambachan-Roth robust-CI breakdown M̄ = **0.04** (extremely fragile).
+
+**Sector DiD demoted from "clean ID ⭐" to supportive evidence.** The sector decomposition
+(power/heat −0.049 p=0.018, manufacturing −0.046 p=0.005, refining null) remains genuine mechanism
+evidence — but the pre-existing trend means the magnitude cannot be attributed cleanly to the ETS.
+
+### Fossil-dependence finding retired
+
+With real `fossil_pct` (0–100 scale) instead of the imputation flag:
+- `has_tax × fossil_z` = +0.071 (p=0.27) — null (was +0.042/SD, p=0.004 with the flag)
+- `has_ets × fossil_z` = −0.119 (p=0.092) — suggestive sign flip (fossil-heavy countries may
+  respond more to ETS, mechanistically coherent with coal-switching), but coding-sensitive
+
+**Retire the "fossil dependence hurts" claim everywhere.**
+
+### CI widening
+
+Dashboard posterior CIs widened 1.51× for `b_ets` (lag-1 residual autocorrelation 0.56; MA(2)
+overlap was making iid posterior SDs 30–35% too narrow). `b_ets` sd: 0.001338 → **0.001883**.
+
+### Dashboard redesign
+
+Three-page map-first app: Engine (choropleth country picker + hero CI bar + dose curve), Evidence
+(7-method table + event study), Methods (identifying assumption + honesty). Correctness fixes: A2
+percent conversion (expm1), A3 extrapolation thresholds corrected to $35 ETS (in-sample max $34.5),
+A1 interaction guard (tax flips positive at ETS ≥ $27.7 — flagged as "unproven not harmful").
+
+---
+
 ## 11 June 2026 — CAPSTONE: Phase 4 sector DiD is the best ETS identification public data allows; threshold-RD frontier documented
+
+> ⚠️ [SUPERSEDED — see 11 June 2026 audit entry above]
+> The "pre-trends pass (p=0.41)" claim in this entry used a diagonal Wald; the correct full-covariance
+> Wald rejects (p=0.0001). The "clean ID ⭐" status is demoted to supportive evidence. The sector
+> decomposition finding (power/manufacturing negative, refining null) survives as mechanism evidence
+> but the claimed magnitude is not cleanly identified. See `docs/audit_fixes/pretrend_correction.md`.
 
 Closed the identification arc. Pushed public data across three resolutions — **country** (dose-response / synthetic control), **sector** (Eurostat covered-vs-uncovered DiD), **installation** (EUTL auctioning DiD). The **Phase 4 within-country sector DiD is the cleanest** (clean control group, pre-trends pass p=0.41, −3.4%/$10) and stands as the **identification capstone**.
 
 The one rung higher — an **RD/matching on the ~20MW ETS inclusion threshold** (barely-covered vs barely-uncovered plants; Colmer et al. 2024) — is **blocked by data access, not method**: it needs plant-level emissions *below* the ETS threshold, which EUTL (covered-only) and E-PRTR (100kt threshold, above the ETS cutoff) don't provide; the literature used confidential UK/French secure-lab micro-data. Full design + access path recorded in `docs/FUTURE_DATA_EXPANSION.md` (won't pursue — no institutional access).
 
 **Final ETS verdict:** robustly real and directionally consistent across all designs (~−7 to −10%/€30 dose; covered sectors ~−19% vs uncovered by 2021), best-identified by the sector DiD; clean point magnitude remains inherently uncertain (price trends with time; treated sectors decarbonised for many reasons). **Tax: unproven** in aggregate, transport-only per Andersson. **Next: ship the dashboard.**
+
+---
 
 ---
 
@@ -32,6 +126,13 @@ Got the actual installation-level data — EU ETS Data Package (Abrell, Zenodo r
 ---
 
 ## 11 June 2026 — PHASE 4 / THE DATA FIX WORKED: within-country covered-vs-uncovered DiD CLEANLY identifies the EU ETS
+
+> ⚠️ [SUPERSEDED — see 11 June 2026 audit entry above]
+> This entry's "clean ID" headline and "pre-trends pass χ²(8)=8.3, p=0.41" are incorrect. The
+> correct full-covariance Wald rejects parallel trends (p=0.0001). The sector decomposition
+> (power/manufacturing vs refining) survives as mechanism evidence; the magnitude does not.
+> The defence that "covered-trend is over-controlling because pre-trends are flat" also fails —
+> that defence was contingent on the (faulty) p=0.41. Status: supportive evidence, not clean ID.
 
 The whole project's ceiling was "no control group" (every rich country priced carbon at once → cross-country and synthetic-control designs fail). **Fix: look INSIDE a country.** The EU ETS covers some sectors (power, refining, energy-intensive industry) and NOT others (road transport, buildings/households). Comparing **covered vs uncovered emissions within country×year** gives a control group, and **country×year fixed effects absorb every country-wide confound** (recessions, weather, national decarbonisation trends) — exactly what killed the cross-country estimates.
 
@@ -278,7 +379,14 @@ Refreshed OWID CO2 data (now reaches 2024) and extended the panel from 2019 to 2
 
 ## 2 June 2026 — Phase 1 Complete (summary)
 
-Carbon tax lowers the 3-yr-forward CO2/capita trend by ~0.15 (p=0.004), robust to every standard check. Effectiveness is driven by state capacity (helps) and fossil dependence (hurts). The democratic paradox is retired.
+> ⚠️ [SUPERSEDED — see 11 June 2026 audit entry]
+> (a) "Carbon tax lowers..." — the ATT −0.151 is **combined carbon pricing** (tax + ETS conflated via
+> `post_carbon_tax`). Phase 2 showed the ETS carries this effect; the standalone carbon tax is unproven.
+> (b) "fossil dependence hurts (+0.049/SD, p=0.004)" — retired: this used the `fossil_pct_filled`
+> imputation flag; with real `fossil_pct` the interaction is −0.065 (p=0.37).
+> (c) Robustness numbers updated on corrected data — see audit entry above.
+
+Carbon pricing lowers the 3-yr-forward CO2/capita trend by ~0.15 (p=0.004), robust to every standard check. Effectiveness is driven by state capacity (helps). The democratic paradox is retired.
 
 - **Baseline DiD** (country + year FE, clustered SEs): ATT -0.151, p=0.004.
 - **Event study:** dynamic effect — ~0 at t=0, peak -0.168 at t+3, fades by t+5. Pre-trends jointly insignificant (F=1.87, p=0.12).
@@ -306,7 +414,13 @@ Carbon tax lowers the 3-yr-forward CO2/capita trend by ~0.15 (p=0.004), robust t
 - **The "democratic paradox" should be downgraded from a headline finding to a weak, unresolved signal.** The earlier negative result was an artefact of the old PC2 definition + cross-country (no-FE) identification.
 
 ### Heterogeneity + effects library (causal_effects_library.ipynb)
-- Effect is **concentrated in high-implementation-capacity, low-fossil-dependence countries**: implementation capacity moderates the ATT by **-0.118/SD (p=0.07)**; fossil dependence by **+0.049/SD (p=0.004)**. Other moderators insignificant.
+
+> ⚠️ [SUPERSEDED — fossil-dependence result retired; see 11 June 2026 audit entry]
+> "+0.049/SD (p=0.004)" used `fossil_pct_filled` (an imputation flag, not a fossil share).
+> With real `fossil_pct`: −0.065 (p=0.37) — noise. Retire the "fossil dependence hurts" claim.
+> Implementation capacity result survives on corrected data: −0.111/SD (p=0.073).
+
+- Effect is **concentrated in high-implementation-capacity countries**: implementation capacity moderates the ATT by **-0.118/SD (p=0.07)**; fossil dependence moderator was an artefact (see above). Other moderators insignificant.
 - **Effects library** (`outputs/effects_library.csv`): predicted ATT per country from -0.63 (Luxembourg) to +0.13 (Ukraine) — the Phase 3 recommendation-engine input.
 - Causal forest used for nonlinear shape/feature importance only; its absolute level is confounded without country FE (mean over treated ≈0), so levels are anchored to the DiD.
 
@@ -346,7 +460,16 @@ Carbon tax lowers the 3-yr-forward CO2/capita trend by ~0.15 (p=0.004), robust t
 
 ## April 2026 — Phase 1 OrthoForest Results
 
-### Democratic Governance Paradox (KEY FINDING)
+> ⚠️ [SUPERSEDED — see 2 June 2026 and 11 June 2026 entries]
+
+### Democratic Governance Paradox (KEY FINDING — RETIRED)
+
+> ⚠️ [SUPERSEDED]
+> The `democratic_legitimacy` variable used here was **PC2**, which loads primarily on
+> `political_stability` (not voice/accountability). PC3 is the correct democracy proxy.
+> Under PC3 + within-FE DiD, the interaction is p=0.27 and sign-unstable across methods.
+> **The democratic paradox is retired.** It was a methodological artefact, not a publishable finding.
+
 - `democratic_legitimacy` (PC2) shows **negative** correlation with carbon tax effectiveness
 - `implementation_capacity` (PC1) shows **positive** correlation as expected
 - Interpretation: technocratic capacity enhances effectiveness; democratic accountability paradoxically weakens it
@@ -359,6 +482,13 @@ Carbon tax lowers the 3-yr-forward CO2/capita trend by ~0.15 (p=0.004), robust t
 - Over-controlling problem resolved — earlier specs with governance as confounders were blocking mechanisms
 
 ### Policy Decay Effect
+
+> ⚠️ [SUPERSEDED — unvalidated on corrected data]
+> The ~1%/yr decay estimate was computed using the **conflated** `post_carbon_tax` treatment
+> (mixing tax and ETS) and the legacy `years_since_tax` variable (which was "years since any
+> pricing"). The corrected per-instrument `years_since_tax` / `years_since_ets` had not been
+> used to re-run this estimate as of the June 2026 audit. Do not cite without re-validation.
+
 - Carbon taxes lose approximately 1% effectiveness annually post-implementation
 - Captured by `years_since_tax` coefficient in DiD specs
 - Important for policy design: maintenance and escalation needed to sustain effect

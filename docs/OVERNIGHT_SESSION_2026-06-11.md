@@ -71,6 +71,13 @@ vs emerging-economies-growing, not the ETS. A control-group design cannot work w
 
 ## §2 — Carbon-tax data expansion: synthetic control on the Nordics (DONE — the key finding)
 
+> ⚠️ **Demotion note (11 June 2026 audit):** §2's initial framing — "the carbon tax is
+> TRANSPORT-CONCENTRATED, not total" — was demoted by §3 the same night (the dose engine on oil
+> CO₂ did not reproduce the SC's oil effect). The corrected conclusion is in §3: "tax effect is
+> weak / unidentified across the board in our data — total AND transport." A reader stopping at
+> §2 would reach the wrong conclusion. The SC oil estimates were never statistically significant
+> (Abadie p>0.25) and are partly pre-tax-confounded (Sweden's nuclear rollout pre-1980s).
+
 **Method.** Pulled OWID emissions back to 1965 (`data/raw/emissions_owid.csv`, history to 1750). For each Nordic
 adopter (Finland 1990, Norway 1991, Sweden 1991, Denmark 1992) built a classic synthetic control: **pre-period
 1970→tax-year**, **post-period tax-year→2004** (stops before the 2005 EU ETS, so DONORS stay untreated and the
@@ -109,6 +116,15 @@ the country-trend check, the Sweden anchor, AND this independent synthetic contr
 
 
 ## §3 — Cross-method scrutiny: the dose engine disciplines the SC's "tax bites transport" claim (DONE)
+
+> **Correction note (11 June 2026 audit, finding H-2):** §3c (below) claimed that the
+> leave-one-country-out stability of the ETS dose slope "addresses the audit-flagged worry" about
+> the shared EU price path. This is incorrect. LOCO drops one country at a time while keeping all
+> remaining EU members on the same shared EUA price path — it cannot address the concern that all
+> EU members experience an identical price trajectory. The 10-June framing ("causally over-precise
+> — effective treated clusters ≈ 1") was right and should be the maintained description. The LOCO
+> result only confirms no single country dominates the estimate; it does not resolve the
+> common-path concern.
 
 §2's synthetic control suggested the Nordic tax cut *oil/transport* CO₂ (−15 to −27%). Before believing it, I
 tested the same hypothesis with our **own dose-response engine, re-run on oil CO₂** (1996+ panel, merged transport
@@ -291,7 +307,8 @@ claim. Do this whenever you have a decomposable outcome.
 | Dashboard | `dashboard/app.py`, `dashboard/build_artifacts.py` | `uv run streamlit run dashboard/app.py` |
 | Full narrative | `docs/FINDINGS_LOG.md`, this file | — |
 
-*All commits are on branch `phase1-robustness-fixes`; each step was committed separately for a clean history.*
+*All commits are on branch `main`; each step was committed separately for a clean history.*
+*(Note: the branch name `phase1-robustness-fixes` in the original doc was stale — work is on `main`.)*
 
 ## F. If you only re-derive one thing, re-derive this
 The single most transferable idea from tonight: **your identification strategy is dictated by the variation your
