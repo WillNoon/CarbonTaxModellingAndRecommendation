@@ -4,6 +4,23 @@
 
 ---
 
+## 11 June 2026 — PHASE 4b / EUTL installation-level (gold-standard data): confirms direction, but the confound is fundamental
+
+Got the actual installation-level data — EU ETS Data Package (Abrell, Zenodo rec 20509231, 492MB; kept a 1.1MB compact installation-year panel `data/raw/eutl_installation_panel.csv.gz`, dropped the 408MB transaction log). 195k installation-years, 17k installations, 32 countries, verified emissions + free allocation per installation. Code `scripts/eutl_auctioning_did.py`, figure `outputs/eutl_auctioning_eventstudy.png`.
+
+**The natural experiment:** EU ETS Phase 3 (2013) — power/combustion installations LOST free allocation (full auctioning; free-alloc/emissions 1.24→0.81→**0.37 by 2020**) while energy-intensive industry KEPT it (~0.89). DiD with **installation + year FE** (absorb the aggregate price trend), clustered by country.
+
+**Result — large but NOT clean:**
+- **combustion:post2013 = −0.32 (p<0.001) → power emissions −27% vs industry** after losing free allocation; event study grows to −47% by 2020.
+- **⚠️ Pre-trends NOISY:** 2009-10 gaps significantly *positive* (+0.09, +0.14; financial-crisis era hit the two groups differently). Not clean parallel trends.
+- **⚠️ Fundamental confound:** auctioning was assigned to *exactly* the sector (power) that decarbonised most for **non-ETS** reasons (collapsing solar/wind costs, coal phase-outs). So −27% conflates "had to pay for carbon" with "the power transition." **Upper bound, not clean ETS isolation.**
+
+**Honest verdict:** the gold-standard *data* doesn't deliver gold-standard *identification* — because the policy assigned the treatment to the most-confounded sector. Ironically the Eurostat sector design (Phase 4, *passing* pre-trends) is the cleaner of the two. The genuinely clean design is an **RD on the ~20MW/25kt ETS inclusion threshold** (barely-covered vs barely-uncovered installations; Colmer/Martin/Muûls/Wagner 2024) — that needs threshold/matching data and is the true next frontier.
+
+**Recurring lesson, now confirmed at every data resolution (country, sector, installation):** the ETS effect is *directionally* robust everywhere (covered/power decarbonised ~10-27% more than controls), but a *clean magnitude* is elusive because the carbon price trends with time AND the treated sectors decarbonised for many overlapping reasons. More/better data sharpened the picture but did not dissolve this — it's the nature of the question, not a fixable data gap. The defensible headline remains the Phase-4 sector DiD (−3.4%/\$10, pre-trends pass) with this as corroborating granularity.
+
+---
+
 ## 11 June 2026 — PHASE 4 / THE DATA FIX WORKED: within-country covered-vs-uncovered DiD CLEANLY identifies the EU ETS
 
 The whole project's ceiling was "no control group" (every rich country priced carbon at once → cross-country and synthetic-control designs fail). **Fix: look INSIDE a country.** The EU ETS covers some sectors (power, refining, energy-intensive industry) and NOT others (road transport, buildings/households). Comparing **covered vs uncovered emissions within country×year** gives a control group, and **country×year fixed effects absorb every country-wide confound** (recessions, weather, national decarbonisation trends) — exactly what killed the cross-country estimates.
